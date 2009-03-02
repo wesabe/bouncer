@@ -1,5 +1,7 @@
 package com.wesabe.bouncer;
 
+import java.security.Principal;
+
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 
 /**
@@ -10,13 +12,11 @@ import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 public interface Authenticator {
 	
 	/**
-	 * If {@code request} is authenticated, marks it as such and returns
-	 * {@code true}. Otherwise, leaves {@code request} unmodified and returns
-	 * {@code false}.
+	 * If {@code request} is authenticated, returns the {@link Principal}
+	 * associated with the request. Otherwise, returns {@code null}.
 	 * 
 	 * @param request a potentially authenticated request
-	 * @return {@code true} if {@code request} is authenticated, {@code false}
-	 *         otherwise
+	 * @return the {@link Principal} associated with {@code request}
 	 */
-	public abstract boolean authenticate(GrizzlyRequest request);
+	public abstract Principal authenticate(GrizzlyRequest request);
 }

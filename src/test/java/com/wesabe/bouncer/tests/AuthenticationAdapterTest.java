@@ -1,6 +1,9 @@
 package com.wesabe.bouncer.tests;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
+import java.security.Principal;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -8,6 +11,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 
+import com.sun.grizzly.tcp.Request;
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
@@ -24,13 +28,17 @@ public class AuthenticationAdapterTest {
 		protected GrizzlyRequest request;
 		@SuppressWarnings("unchecked")
 		protected GrizzlyResponse response;
+		protected Request connectionRequest;
 		
 		protected void setup() throws Exception {
 			this.authenticator = mock(Authenticator.class);
 			this.challengeAdapter = mock(GrizzlyAdapter.class);
 			this.passthroughAdapter = mock(GrizzlyAdapter.class);
 			
-			this.request = mock(GrizzlyRequest.class);
+			this.connectionRequest = new Request();
+			this.request = new GrizzlyRequest();
+			request.setRequest(connectionRequest);
+			
 			this.response = mock(GrizzlyResponse.class);
 			
 			this.adapter = new AuthenticationAdapter(authenticator, challengeAdapter, passthroughAdapter);
@@ -43,7 +51,7 @@ public class AuthenticationAdapterTest {
 		public void setup() throws Exception {
 			super.setup();
 			
-			when(authenticator.authenticate(request)).thenReturn(false);
+			when(authenticator.authenticate(request)).thenReturn(null);
 		}
 		
 		@Test
@@ -57,16 +65,28 @@ public class AuthenticationAdapterTest {
 	}
 	
 	public static class Handling_An_Authenticated_Request extends Context {
+		private Principal principal;
+		
 		@Override
 		@Before
 		public void setup() throws Exception {
 			super.setup();
 			
-			when(authenticator.authenticate(request)).thenReturn(true);
+			this.principal = mock(Principal.class);
+			when(principal.toString()).thenReturn("Wesabe auth");
+			
+			when(authenticator.authenticate(request)).thenReturn(principal);
 		}
 		
 		@Test
-		public void itShouldPassTheRequestToThePassthroughAdapter() throws Exception {
+		public void itMarksTheRequestAsAuthenticated() throws Exception {
+			adapter.service(request, response);
+			
+			assertEquals("Wesabe auth", connectionRequest.getMimeHeaders().getHeader("Authorization"));
+		}
+		
+		@Test
+		public void itPassesTheRequestToThePassthroughAdapter() throws Exception {
 			adapter.service(request, response);
 			
 			InOrder inOrder = inOrder(authenticator, passthroughAdapter);

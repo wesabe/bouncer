@@ -1,5 +1,6 @@
 package com.wesabe.bouncer;
 
+import java.security.Principal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +15,7 @@ import com.sun.grizzly.tcp.http11.GrizzlyResponse;
  * @author coda
  */
 public class AuthenticationAdapter extends GrizzlyAdapter {
+	private static final String AUTHENTICATION_HEADER = "Authorization";
 	private static final Logger LOGGER = Logger.getLogger(AuthenticationAdapter.class.getName());
 
 	private final Authenticator authenticator;
@@ -45,7 +47,9 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 	@Override
 	public void service(GrizzlyRequest request, GrizzlyResponse response) {
 		try {
-			if (authenticator.authenticate(request)) {
+			final Principal principal = authenticator.authenticate(request);
+			if (principal != null) {
+				markAsAuthenticated(request, principal);
 				passthroughAdapter.service(request, response);
 			} else {
 				challengeAdapter.service(request, response);
@@ -53,6 +57,10 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error authenticating request", e);
 		}
+	}
+
+	private void markAsAuthenticated(GrizzlyRequest request, final Principal principal) {
+		request.getRequest().getMimeHeaders().setValue(AUTHENTICATION_HEADER).setString(principal.toString());
 	}
 
 }
