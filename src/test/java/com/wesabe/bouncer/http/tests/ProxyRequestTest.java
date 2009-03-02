@@ -9,12 +9,12 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import com.wesabe.bouncer.http.GenericHttpRequest;
+import com.wesabe.bouncer.http.ProxyRequest;
 
 @RunWith(Enclosed.class)
-public class GenericHttpRequestTest {
+public class ProxyRequestTest {
 	public static class Without_An_Entity {
-		private final GenericHttpRequest request = new GenericHttpRequest("GET", "/hello", null, 0);
+		private final ProxyRequest request = new ProxyRequest("GET", "/hello", null, 0);
 		
 		@Test
 		public void itHasAMethod() throws Exception {
@@ -34,13 +34,13 @@ public class GenericHttpRequestTest {
 	}
 	
 	public static class With_An_Entity {
-		private GenericHttpRequest request;
+		private ProxyRequest request;
 		
 		@Before
 		public void setup() throws Exception {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream("blah blah blah".getBytes());
 			
-			this.request = new GenericHttpRequest("GET", "/hello", inputStream, 14);
+			this.request = new ProxyRequest("GET", "/hello", inputStream, 14);
 		}
 		
 		@Test

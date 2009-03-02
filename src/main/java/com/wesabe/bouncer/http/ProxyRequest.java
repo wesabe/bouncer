@@ -14,7 +14,7 @@ import org.apache.http.entity.InputStreamEntity;
  * 
  * @author coda
  */
-public class GenericHttpRequest extends HttpEntityEnclosingRequestBase {
+public class ProxyRequest extends HttpEntityEnclosingRequestBase {
 	private final String method;
 	private final boolean hasEntity;
 	
@@ -26,7 +26,7 @@ public class GenericHttpRequest extends HttpEntityEnclosingRequestBase {
 	 * @param entity an input stream of the entity contents, or null if no entity
 	 * @param entityLength the length of {@code entity}, in bytes
 	 */
-	public GenericHttpRequest(String method, String uri, InputStream entity, int entityLength) {
+	public ProxyRequest(String method, String uri, InputStream entity, int entityLength) {
 		super();
 		this.method = method;
 		setURI(URI.create(uri));
