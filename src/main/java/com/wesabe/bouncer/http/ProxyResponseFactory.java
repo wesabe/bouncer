@@ -47,7 +47,7 @@ public class ProxyResponseFactory {
 	 * @throws IOException if something goes wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public void buildFromHttpResponse(HttpResponse proxyResponse, GrizzlyResponse response)
+	public void buildFromHttpResponse(ProxyResponse proxyResponse, GrizzlyResponse response)
 			throws IOException {
 		response.setStatus(proxyResponse.getStatusLine().getStatusCode());
 		copyHeaders(proxyResponse, response);
