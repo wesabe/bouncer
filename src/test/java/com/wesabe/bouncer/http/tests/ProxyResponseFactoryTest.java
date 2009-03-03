@@ -102,11 +102,6 @@ public class ProxyResponseFactoryTest {
 		public void itOverwritesTheServerHeader() throws Exception {
 			assertEquals("[Server: Wesabe]", getHeaderValues("Server"));
 		}
-		
-		@Test
-		public void itCommitsTheResponse() throws Exception {
-			assertTrue(response.isCommitted());
-		}
 	}
 	
 	public static class Building_A_Response_From_A_Proxy_Response_With_An_Entity {

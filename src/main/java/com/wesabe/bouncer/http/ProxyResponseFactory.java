@@ -50,9 +50,9 @@ public class ProxyResponseFactory {
 	public void buildFromHttpResponse(HttpResponse proxyResponse, GrizzlyResponse response)
 			throws IOException {
 		response.setStatus(proxyResponse.getStatusLine().getStatusCode());
+		copyEntity(proxyResponse, response);
 		copyHeaders(proxyResponse, response);
 		squashServerHeader(response);
-		copyEntity(proxyResponse, response);
 		response.finishResponse();
 	}
 
@@ -75,7 +75,9 @@ public class ProxyResponseFactory {
 			throws IOException {
 		if (proxyResponse.getEntity() != null) {
 			copyStream(proxyResponse.getEntity().getContent(), response.getOutputStream());
-			response.setContentType(proxyResponse.getEntity().getContentType().getValue());
+			if (proxyResponse.getEntity().getContentLength() > 0) {
+				response.setContentType(proxyResponse.getEntity().getContentType().getValue());
+			}
 		}
 	}
 
