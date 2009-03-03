@@ -37,11 +37,14 @@ public class ProxyAdapter extends GrizzlyAdapter {
 				ProxyRequest proxyRequest = requestFactory.buildFromGrizzlyRequest(request);
 				HttpResponse proxyResponse = backendService.execute(proxyRequest);
 				responseFactory.buildFromHttpResponse(proxyResponse, response);
+				response.finishResponse();
 			} catch (HttpException e) {
+				LOGGER.log(Level.SEVERE, "Error proxying request to gateway", e);
 				response.sendError(BAD_GATEWAY);
 			}
 		} catch (Exception e) {
 			try {
+				LOGGER.log(Level.SEVERE, "Internal error", e);
 				response.sendError(500);
 			} catch (IOException e1) {
 				LOGGER.log(Level.SEVERE, "Unhandled internal error", e1);

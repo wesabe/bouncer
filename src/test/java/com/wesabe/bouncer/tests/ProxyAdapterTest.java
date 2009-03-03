@@ -71,6 +71,7 @@ public class ProxyAdapterTest {
 			adapter.service(request, response);
 			
 			verify(responseFactory).buildFromHttpResponse(proxyResponse, response);
+			verify(response).finishResponse();
 		}
 	}
 	
