@@ -24,13 +24,14 @@ public class ProxyRequest extends HttpEntityEnclosingRequestBase {
 	 * @param method an HTTP method
 	 * @param uri a relative URI
 	 * @param entity an input stream of the entity contents, or null if no entity
-	 * @param entityLength the length of {@code entity}, in bytes
+	 * @param entityLength the length of {@code entity}, in bytes, or {@code 0}
+	 * 						if no entity
 	 */
 	public ProxyRequest(String method, String uri, InputStream entity, int entityLength) {
 		super();
 		this.method = method;
 		setURI(URI.create(uri));
-		this.hasEntity = entity != null;
+		this.hasEntity = entityLength > 0;
 		if (hasEntity) {
 			setEntity(new InputStreamEntity(entity, entityLength));
 		}

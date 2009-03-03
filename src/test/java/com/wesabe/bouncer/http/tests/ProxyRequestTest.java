@@ -14,7 +14,7 @@ import com.wesabe.bouncer.http.ProxyRequest;
 @RunWith(Enclosed.class)
 public class ProxyRequestTest {
 	public static class Without_An_Entity {
-		private final ProxyRequest request = new ProxyRequest("GET", "/hello", null, 0);
+		private final ProxyRequest request = new ProxyRequest("GET", "/hello", new ByteArrayInputStream("".getBytes()), 0);
 		
 		@Test
 		public void itHasAMethod() throws Exception {
