@@ -9,7 +9,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
@@ -17,7 +16,7 @@ import com.wesabe.bouncer.HttpHeaders;
 
 /**
  * A factory class for building {@link GrizzlyRequest}s based on the information
- * in {@link HttpResponse}s.
+ * in {@link ProxyResponse}s.
  * 
  * @author coda
  */
@@ -39,8 +38,8 @@ public class ProxyResponseFactory {
 	}
 
 	/**
-	 * Given an outgoing {@link HttpResponse}, configures a
-	 * corresponding {@link GrizzlyResponse}.
+	 * Given an outgoing {@link ProxyResponse}, sends a corresponding {@link
+	 * GrizzlyResponse}.
 	 * 
 	 * @param proxyResponse the response from the proxied server
 	 * @param response the response to send to the client
@@ -57,7 +56,7 @@ public class ProxyResponseFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void copyHeaders(HttpResponse proxyResponse, GrizzlyResponse response) {
+	private void copyHeaders(ProxyResponse proxyResponse, GrizzlyResponse response) {
 		for (Header header : proxyResponse.getAllHeaders()) {
 			if (httpHeaders.isValidResponseHeader(header.getName())) {
 				response.addHeader(header.getName(), header.getValue());
@@ -71,26 +70,39 @@ public class ProxyResponseFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void copyEntity(HttpResponse proxyResponse, GrizzlyResponse response)
+	private void copyEntity(ProxyResponse proxyResponse, GrizzlyResponse response)
 			throws IOException {
 		if (proxyResponse.getEntity() != null) {
 			copyStream(proxyResponse.getEntity().getContent(), response.getOutputStream());
 			response.setContentType(proxyResponse.getEntity().getContentType().getValue());
 		}
 	}
-	
+
 	private void copyStream(InputStream input, OutputStream output) throws IOException {
 		// from O'Reilly's Java NIO, pg. 60
 		final ReadableByteChannel inputChannel = Channels.newChannel(input);
 		final WritableByteChannel outputChannel = Channels.newChannel(output);
 		final ByteBuffer buffer = ByteBuffer.allocateDirect(BUFFER_SIZE);
 		while (inputChannel.read(buffer) != -1) {
+			// Prepare the buffer to be drained
 			buffer.flip();
-			while (buffer.hasRemaining()) {
-				outputChannel.write(buffer);
-			}
-			buffer.clear();
+
+			// Write to the channel; may block
+			outputChannel.write(buffer);
+
+			// If partial transfer, shift remainder down
+			// If buffer is empty, same as doing clear( )
+			buffer.compact();
 		}
+
+		// EOF will leave buffer in fill state
+		buffer.flip();
+
+		// Make sure that the buffer is fully drained
+		while (buffer.hasRemaining()) {
+			outputChannel.write(buffer);
+		}
+		
 		inputChannel.close();
 		outputChannel.close();
 	}
