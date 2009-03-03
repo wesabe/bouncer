@@ -32,6 +32,11 @@ public class HttpHeadersTest {
 		public void itShouldIncludeFieldsWithDifferentCapitalization() throws Exception {
 			assertTrue(headers.isValidRequestHeader("DATE"));
 		}
+		
+		@Test
+		public void itShouldNotIncludeContentLength() throws Exception {
+			assertFalse(headers.isValidRequestHeader("Content-Length"));
+		}
 	}
 	
 	public static class Evaluating_Response_Header_Fields {

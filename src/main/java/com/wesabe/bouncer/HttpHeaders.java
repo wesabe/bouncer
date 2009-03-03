@@ -68,6 +68,12 @@ public class HttpHeaders {
 	);
 	
 	/**
+	 * Request headers which are handled by existing libraries and which
+	 * shouldn't be blindly proxied.
+	 */
+	private static final HeaderFieldSet UNPROXIED_REQUEST_HEADERS = new HeaderFieldSet("Content-Length");
+	
+	/**
 	 * Valid HTTP 1.1. request header fields.
 	 * 
 	 * @see <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec5.3">RFC 2616, Section 5.3</a>
@@ -120,9 +126,10 @@ public class HttpHeaders {
 	 * 			header field
 	 */
 	public boolean isValidRequestHeader(String header) {
-		return REQUEST_HEADERS.contains(header)
+		return (REQUEST_HEADERS.contains(header)
 				|| GENERAL_HEADERS.contains(header)
-				|| ENTITY_HEADERS.contains(header);
+				|| ENTITY_HEADERS.contains(header))
+				&& !UNPROXIED_REQUEST_HEADERS.contains(header);
 	}
 	
 	/**
