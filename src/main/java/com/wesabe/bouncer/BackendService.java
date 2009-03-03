@@ -1,5 +1,6 @@
 package com.wesabe.bouncer;
 
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 
@@ -14,5 +15,5 @@ import com.wesabe.bouncer.http.ProxyResponse;
  *
  */
 public interface BackendService {
-	public abstract ProxyResponse execute(ProxyRequest request);
+	public abstract ProxyResponse execute(ProxyRequest request) throws HttpException;
 }
