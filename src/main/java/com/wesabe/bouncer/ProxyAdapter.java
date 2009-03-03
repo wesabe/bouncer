@@ -5,13 +5,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
-import com.wesabe.bouncer.http.ProxyResponse;
 import com.wesabe.bouncer.http.ProxyResponseFactory;
 
 public class ProxyAdapter extends GrizzlyAdapter {
@@ -35,7 +35,7 @@ public class ProxyAdapter extends GrizzlyAdapter {
 		try {
 			try {
 				ProxyRequest proxyRequest = requestFactory.buildFromGrizzlyRequest(request);
-				ProxyResponse proxyResponse = backendService.execute(proxyRequest);
+				HttpResponse proxyResponse = backendService.execute(proxyRequest);
 				responseFactory.buildFromHttpResponse(proxyResponse, response);
 			} catch (HttpException e) {
 				response.sendError(BAD_GATEWAY);

@@ -2,18 +2,16 @@ package com.wesabe.bouncer;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpUriRequest;
 
 import com.wesabe.bouncer.http.ProxyRequest;
-import com.wesabe.bouncer.http.ProxyResponse;
 
 /**
- * An internal service which, when given an {@link HttpUriRequest}, returns a
+ * An internal service which, when given an {@link ProxyRequest}, returns a
  * {@link HttpResponse}.
  * 
  * @author coda
  *
  */
 public interface BackendService {
-	public abstract ProxyResponse execute(ProxyRequest request) throws HttpException;
+	public abstract HttpResponse execute(ProxyRequest request) throws HttpException;
 }

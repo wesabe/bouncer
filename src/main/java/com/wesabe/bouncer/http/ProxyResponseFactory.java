@@ -9,6 +9,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
@@ -16,7 +17,7 @@ import com.wesabe.bouncer.HttpHeaders;
 
 /**
  * A factory class for building {@link GrizzlyRequest}s based on the information
- * in {@link ProxyResponse}s.
+ * in {@link HttpResponse}s.
  * 
  * @author coda
  */
@@ -38,7 +39,7 @@ public class ProxyResponseFactory {
 	}
 
 	/**
-	 * Given an outgoing {@link ProxyResponse}, sends a corresponding {@link
+	 * Given an outgoing {@link HttpResponse}, sends a corresponding {@link
 	 * GrizzlyResponse}.
 	 * 
 	 * @param proxyResponse the response from the proxied server
@@ -46,7 +47,7 @@ public class ProxyResponseFactory {
 	 * @throws IOException if something goes wrong
 	 */
 	@SuppressWarnings("unchecked")
-	public void buildFromHttpResponse(ProxyResponse proxyResponse, GrizzlyResponse response)
+	public void buildFromHttpResponse(HttpResponse proxyResponse, GrizzlyResponse response)
 			throws IOException {
 		response.setStatus(proxyResponse.getStatusLine().getStatusCode());
 		copyHeaders(proxyResponse, response);
@@ -56,7 +57,7 @@ public class ProxyResponseFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void copyHeaders(ProxyResponse proxyResponse, GrizzlyResponse response) {
+	private void copyHeaders(HttpResponse proxyResponse, GrizzlyResponse response) {
 		for (Header header : proxyResponse.getAllHeaders()) {
 			if (httpHeaders.isValidResponseHeader(header.getName())) {
 				response.addHeader(header.getName(), header.getValue());
@@ -70,7 +71,7 @@ public class ProxyResponseFactory {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void copyEntity(ProxyResponse proxyResponse, GrizzlyResponse response)
+	private void copyEntity(HttpResponse proxyResponse, GrizzlyResponse response)
 			throws IOException {
 		if (proxyResponse.getEntity() != null) {
 			copyStream(proxyResponse.getEntity().getContent(), response.getOutputStream());

@@ -3,6 +3,7 @@ package com.wesabe.bouncer.tests;
 import static org.mockito.Mockito.*;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -14,7 +15,6 @@ import com.wesabe.bouncer.BackendService;
 import com.wesabe.bouncer.ProxyAdapter;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
-import com.wesabe.bouncer.http.ProxyResponse;
 import com.wesabe.bouncer.http.ProxyResponseFactory;
 
 @RunWith(Enclosed.class)
@@ -25,7 +25,7 @@ public class ProxyAdapterTest {
 		protected GrizzlyRequest request;
 		@SuppressWarnings("unchecked")
 		protected GrizzlyResponse response;
-		protected ProxyResponse proxyResponse;
+		protected HttpResponse proxyResponse;
 		protected ProxyRequest proxyRequest;
 		protected ProxyRequestFactory requestFactory;
 		protected ProxyResponseFactory responseFactory;
@@ -35,7 +35,7 @@ public class ProxyAdapterTest {
 			this.request = mock(GrizzlyRequest.class);
 			this.response = mock(GrizzlyResponse.class);
 			this.proxyRequest = mock(ProxyRequest.class);
-			this.proxyResponse = mock(ProxyResponse.class);
+			this.proxyResponse = mock(HttpResponse.class);
 			this.requestFactory = mock(ProxyRequestFactory.class);
 			when(requestFactory.buildFromGrizzlyRequest(request)).thenReturn(proxyRequest);
 			this.responseFactory = mock(ProxyResponseFactory.class);
