@@ -2,6 +2,9 @@ package com.wesabe.bouncer.tests;
 
 import static org.mockito.Mockito.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.junit.Before;
@@ -80,6 +83,7 @@ public class ProxyAdapterTest {
 		@Before
 		public void setup() throws Exception {
 			super.setup();
+			Logger.getLogger(ProxyAdapter.class.getName()).setLevel(Level.OFF);
 			when(backendService.execute(proxyRequest)).thenThrow(new HttpException("something horrible has happened"));
 		}
 		
@@ -96,6 +100,7 @@ public class ProxyAdapterTest {
 		@Before
 		public void setup() throws Exception {
 			super.setup();
+			Logger.getLogger(ProxyAdapter.class.getName()).setLevel(Level.OFF);
 			when(backendService.execute(proxyRequest)).thenThrow(new RuntimeException("something horrible has happened"));
 		}
 		
