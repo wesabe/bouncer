@@ -14,7 +14,7 @@ import com.sun.grizzly.tcp.InputBuffer;
 import com.sun.grizzly.tcp.Request;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.util.buf.ByteChunk;
-import com.wesabe.bouncer.HttpHeaders;
+import com.wesabe.bouncer.http.HttpHeaders;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
 

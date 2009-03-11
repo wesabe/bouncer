@@ -1,4 +1,4 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.http;
 
 import java.util.Locale;
 

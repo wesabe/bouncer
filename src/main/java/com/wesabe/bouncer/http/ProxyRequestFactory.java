@@ -3,7 +3,6 @@ package com.wesabe.bouncer.http;
 import java.util.Enumeration;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
-import com.wesabe.bouncer.HttpHeaders;
 
 /**
  * A factory class for building {@link ProxyRequest}s based on the information

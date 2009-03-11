@@ -20,7 +20,7 @@ import com.sun.grizzly.tcp.OutputBuffer;
 import com.sun.grizzly.tcp.Response;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
 import com.sun.grizzly.util.buf.ByteChunk;
-import com.wesabe.bouncer.HttpHeaders;
+import com.wesabe.bouncer.http.HttpHeaders;
 import com.wesabe.bouncer.http.ProxyResponseFactory;
 
 @RunWith(Enclosed.class)

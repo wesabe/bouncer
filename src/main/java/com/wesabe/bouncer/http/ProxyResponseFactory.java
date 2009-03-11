@@ -13,7 +13,6 @@ import org.apache.http.HttpResponse;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
-import com.wesabe.bouncer.HttpHeaders;
 
 /**
  * A factory class for building {@link GrizzlyRequest}s based on the information
