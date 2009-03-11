@@ -1,4 +1,4 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.http;
 
 import java.net.URI;
 import java.util.logging.Logger;
@@ -7,8 +7,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 
-import com.wesabe.bouncer.http.HttpClientFactory;
-import com.wesabe.bouncer.http.ProxyRequest;
 
 /**
  * A backend service which sends a {@link ProxyRequest} to a server (identified

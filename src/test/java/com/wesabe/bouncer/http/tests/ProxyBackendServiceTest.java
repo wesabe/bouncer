@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.tests;
+package com.wesabe.bouncer.http.tests;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -13,8 +13,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 
-import com.wesabe.bouncer.ProxyBackendService;
 import com.wesabe.bouncer.http.HttpClientFactory;
+import com.wesabe.bouncer.http.ProxyBackendService;
 import com.wesabe.bouncer.http.ProxyRequest;
 
 @RunWith(Enclosed.class)

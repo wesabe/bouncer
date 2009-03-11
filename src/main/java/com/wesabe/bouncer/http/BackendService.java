@@ -1,9 +1,8 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.http;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 
-import com.wesabe.bouncer.http.ProxyRequest;
 
 /**
  * An internal service which, when given an {@link ProxyRequest}, returns a

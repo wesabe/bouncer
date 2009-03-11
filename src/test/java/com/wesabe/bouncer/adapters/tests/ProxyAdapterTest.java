@@ -14,8 +14,8 @@ import org.junit.runner.RunWith;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
-import com.wesabe.bouncer.BackendService;
 import com.wesabe.bouncer.adapters.ProxyAdapter;
+import com.wesabe.bouncer.http.BackendService;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
 import com.wesabe.bouncer.http.ProxyResponseFactory;
