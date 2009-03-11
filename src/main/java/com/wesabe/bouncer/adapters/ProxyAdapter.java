@@ -1,4 +1,4 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.adapters;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
+import com.wesabe.bouncer.BackendService;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
 import com.wesabe.bouncer.http.ProxyResponseFactory;

@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.tests;
+package com.wesabe.bouncer.adapters.tests;
 
 import static org.mockito.Mockito.*;
 
@@ -10,7 +10,7 @@ import org.mockito.InOrder;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
-import com.wesabe.bouncer.BasicAuthChallengeAdapter;
+import com.wesabe.bouncer.adapters.BasicAuthChallengeAdapter;
 
 @RunWith(Enclosed.class)
 public class BasicAuthChallengeAdapterTest {

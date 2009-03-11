@@ -1,4 +1,4 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.adapters;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

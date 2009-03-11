@@ -1,4 +1,4 @@
-package com.wesabe.bouncer;
+package com.wesabe.bouncer.adapters;
 
 import java.security.Principal;
 import java.util.logging.Level;
@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
+import com.wesabe.bouncer.Authenticator;
 
 /**
  * A filtering adapter which sends authenticated requests to a passthrough
