@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.tests;
+package com.wesabe.bouncer.auth.tests;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import com.wesabe.bouncer.WesabeCredentials;
+import com.wesabe.bouncer.auth.WesabeCredentials;
 
 @RunWith(Enclosed.class)
 public class WesabeCredentialsTest {

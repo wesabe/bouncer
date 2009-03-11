@@ -15,8 +15,8 @@ import com.sun.grizzly.tcp.Request;
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
-import com.wesabe.bouncer.Authenticator;
 import com.wesabe.bouncer.adapters.AuthenticationAdapter;
+import com.wesabe.bouncer.auth.Authenticator;
 
 @RunWith(Enclosed.class)
 public class AuthenticationAdapterTest {
