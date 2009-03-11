@@ -36,7 +36,7 @@ public class WesabeCredentials implements Principal {
 	
 	@Override
 	public String toString() {
-		return Base64Utils.encodeToString(
+		return "Wesabe " + Base64Utils.encodeToString(
 			String.format(
 				FORMAT,
 				Integer.valueOf(userId),

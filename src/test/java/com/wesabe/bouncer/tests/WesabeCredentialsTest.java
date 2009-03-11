@@ -30,7 +30,7 @@ public class WesabeCredentialsTest {
 		
 		@Test
 		public void itEncodesItselfWithBase64() throws Exception {
-			assertEquals("MzA6d29v", creds.toString());
+			assertEquals("Wesabe MzA6d29v", creds.toString());
 		}
 	}
 }
