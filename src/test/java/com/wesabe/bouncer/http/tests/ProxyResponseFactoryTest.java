@@ -119,7 +119,7 @@ public class ProxyResponseFactoryTest {
 				new ProtocolVersion("http", 1, 1), 200, "THAT WAS AWESOME"
 			);
 			proxyResponse.setHeader("Date", "RIGHT NOW");
-			proxyResponse.setHeader("Location", "https://api.wesabe.com/v2/blah");
+			proxyResponse.setHeader("Vary", "User-Agent");
 			proxyResponse.setHeader("Server", "Snooper Secret");
 			proxyResponse.setHeader("Accept", "STUFF");
 			proxyResponse.setHeader("X-Left-Field", "All babies are ugly.");
@@ -142,6 +142,31 @@ public class ProxyResponseFactoryTest {
 		}
 		
 		@Test
+		public void itCopiesValidResponseHeaders() throws Exception {
+			assertEquals("[Vary: User-Agent]", getHeaderValues("Vary"));
+		}
+		
+		@Test
+		public void itCopiesValidGeneralHeaders() throws Exception {
+			assertEquals("[Date: RIGHT NOW]", getHeaderValues("Date"));
+		}
+		
+		@Test
+		public void itDoesNotCopyValidRequestHeaders() throws Exception {
+			assertEquals("[]", getHeaderValues("Accept"));
+		}
+		
+		@Test
+		public void itDoesNotCopyInvalidRequestHeaders() throws Exception {
+			assertEquals("[]", getHeaderValues("X-Left-Field"));
+		}
+		
+		@Test
+		public void itOverwritesTheServerHeader() throws Exception {
+			assertEquals("[Server: Wesabe]", getHeaderValues("Server"));
+		}
+		
+		@Test
 		public void itCopiesTheContentType() throws Exception {
 			assertEquals("text/plain", response.getContentType());
 		}
@@ -149,6 +174,14 @@ public class ProxyResponseFactoryTest {
 		@Test
 		public void itCopiesTheContentLength() throws Exception {
 			assertEquals(14, response.getContentLength());
+		}
+		
+		private String getHeaderValues(String headerName) {
+			List<String> headers = Lists.newArrayList();
+			for (String headerValue : response.getHeaderValues(headerName)) {
+				headers.add(headerName + ": " + headerValue);
+			}
+			return headers.toString();
 		}
 	}
 }
