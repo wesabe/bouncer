@@ -40,6 +40,16 @@
 			<artifactId>google-collections</artifactId>
 			<version>0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>c3p0</groupId>
+			<artifactId>c3p0</artifactId>
+			<version>0.9.1.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -70,7 +80,23 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<mainClass>com.wesabe.bouncer.Server</mainClass>
+					<arguments>
+						<argument>development.properties</argument>
+					</arguments>
+				</configuration>
+			</plugin>
 		</plugins>
-
 	</build>
 </project>
