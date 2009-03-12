@@ -23,7 +23,6 @@ import com.sun.grizzly.util.buf.HexUtils;
  *
  */
 public class WesabeAuthenticator implements Authenticator {
-	
 	private static class AuthHeader {
 		private static final String BASIC_AUTHENTICATION_PREFIX = "Basic ";
 		private final String username, password;
@@ -63,6 +62,18 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 	
 	private static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String USER_ID_FIELD = "id";
+	private static final String USERNAME_FIELD = "username";
+	private static final String SALT_FIELD = "salt";
+	private static final String PASSWORD_HASH_FIELD = "password_hash";
+	private static final String USER_SELECT_SQL = "SELECT " +
+													USER_ID_FIELD + ", " +
+													USERNAME_FIELD + ", " +
+													SALT_FIELD + ", " +
+													PASSWORD_HASH_FIELD + " " +
+												  "FROM users WHERE " +
+												  	USERNAME_FIELD + " = ?";
+	private static final String HASH_ALGORITHM = "SHA-256";
 	private final DataSource dataSource;
 	
 	public WesabeAuthenticator(DataSource dataSource) {
@@ -79,24 +90,10 @@ public class WesabeAuthenticator implements Authenticator {
 			try {
 				final Connection connection = dataSource.getConnection();
 				try {
-
-					PreparedStatement statement = connection.prepareStatement("SELECT id, username, salt, password_hash FROM users WHERE username = ?");
-					statement.setString(1, header.getUsername());
-
-					ResultSet resultSet = statement.executeQuery();
+					final ResultSet resultSet = getResults(connection, header);
 
 					if (resultSet.first()) {
-						final String salt = resultSet.getString("salt");
-						final int userId = resultSet.getInt("id");
-						final String passwordHash = resultSet.getString("password_hash");
-						
-						final String candidatePasswordHash = concatenateAndHash(salt, header.getPassword());
-						
-						if (candidatePasswordHash.equals(passwordHash)) {
-							return new WesabeCredentials(userId, concatenateAndHash(concatenateAndHash(header.getUsername(), header.getPassword()), header.getPassword()));
-						}
-						
-						return null;
+						return buildCredentials(header, resultSet);
 					}
 					
 					return null;
@@ -115,9 +112,39 @@ public class WesabeAuthenticator implements Authenticator {
 		return null;
 	}
 
+	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)
+			throws SQLException, NoSuchAlgorithmException {
+		final String salt = resultSet.getString(SALT_FIELD);
+		final int userId = resultSet.getInt(USER_ID_FIELD);
+		final String passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
+		
+		final String candidatePasswordHash = concatenateAndHash(salt, header.getPassword());
+		
+		if (candidatePasswordHash.equals(passwordHash)) {
+			return new WesabeCredentials(
+					userId,
+					concatenateAndHash(
+							concatenateAndHash(header.getUsername(), header.getPassword()),
+							header.getPassword()
+					)
+			);
+		}
+		
+		return null;
+	}
+
+	private ResultSet getResults(Connection connection, AuthHeader header)
+			throws SQLException {
+		PreparedStatement statement = connection.prepareStatement(USER_SELECT_SQL);
+		statement.setString(1, header.getUsername());
+
+		ResultSet resultSet = statement.executeQuery();
+		return resultSet;
+	}
+
 	private String concatenateAndHash(String a, String b)
 			throws NoSuchAlgorithmException {
-		MessageDigest sha512 = MessageDigest.getInstance("SHA-256");
+		MessageDigest sha512 = MessageDigest.getInstance(HASH_ALGORITHM);
 		
 		StringBuilder builder = new StringBuilder();
 		builder.append(a);
