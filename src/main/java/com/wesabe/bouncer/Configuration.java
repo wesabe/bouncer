@@ -35,8 +35,8 @@ public class Configuration {
 		}
 	}
 
-	public String getBackendUri() {
-		return properties.getProperty(BACKEND_URI_KEY);
+	public URI getBackendUri() throws URISyntaxException {
+		return new URI(properties.getProperty(BACKEND_URI_KEY));
 	}
 
 	public int getPort() {

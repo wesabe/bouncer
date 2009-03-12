@@ -26,7 +26,7 @@ public class ConfigurationTest {
 		
 		@Test
 		public void itHasABackendURI() throws Exception {
-			assertEquals("blah", configuration.getBackendUri());
+			assertEquals(URI.create("http://0.0.0.0:8081"), configuration.getBackendUri());
 		}
 		
 		@Test
