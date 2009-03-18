@@ -20,9 +20,15 @@ import com.wesabe.bouncer.http.ProxyResponseFactory;
 
 public class Server {
 	private static final Logger LOGGER = Logger.getLogger(Server.class.getCanonicalName());
+	private static final int CONFIG_FILE_IDX = 0;
+	private static final int PORT_IDX = 1;
 	
 	public static void main(String[] args) throws Exception {
-		Configuration config = new Configuration(args[0]);
+		if (args.length != 2) {
+			System.err.println("Usage: java -jar <bouncer.jar> <config file> <port>");
+		}
+		
+		Configuration config = new Configuration(args[CONFIG_FILE_IDX]);
 		
 		BasicAuthChallengeAdapter challengeAdapter = new BasicAuthChallengeAdapter(
 				config.getAuthenticationRealm(),
@@ -68,7 +74,9 @@ public class Server {
 				proxyAdapter
 		);
 		
-		GrizzlyWebServer ws = new GrizzlyWebServer(config.getPort());
+		int port = Integer.valueOf(args[PORT_IDX]);
+		
+		GrizzlyWebServer ws = new GrizzlyWebServer(port);
 		ws.addGrizzlyAdapter(authenticationAdapter, new String[] { "/" });
 		
 		if (config.isHttpCompressionEnabled()) {
@@ -84,7 +92,8 @@ public class Server {
 		ws.start();
 		
 		
-		GrizzlyWebServer healthWs = new GrizzlyWebServer(config.getPort() + 1000);
+		int healthPort = port + 1000;
+		GrizzlyWebServer healthWs = new GrizzlyWebServer(healthPort);
 		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
 		healthWs.addGrizzlyAdapter(healthAdapter, new String[] { "/" });
 		LOGGER.info("Starting health-check at http://0.0.0.0:" + healthWs.getSelectorThread().getPort());

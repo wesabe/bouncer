@@ -19,7 +19,6 @@ public class Configuration {
 	private static final String AUTHENTICATION_ERROR_MESSAGE_KEY = "bouncer.auth.error-message";
 	private static final String AUTHENTICATION_REALM_KEY = "bouncer.auth.realm";
 	private static final String SERVER_NAME_KEY = "bouncer.server-name";
-	private static final String PORT_KEY = "bouncer.port";
 	private static final String BACKEND_URI_KEY = "bouncer.backend.uri";
 	
 	private final Properties properties;
@@ -37,10 +36,6 @@ public class Configuration {
 
 	public URI getBackendUri() throws URISyntaxException {
 		return new URI(properties.getProperty(BACKEND_URI_KEY));
-	}
-
-	public int getPort() {
-		return Integer.valueOf(properties.getProperty(PORT_KEY));
 	}
 
 	public String getServerName() {

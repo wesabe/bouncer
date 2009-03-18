@@ -94,6 +94,7 @@
 					<mainClass>com.wesabe.bouncer.Server</mainClass>
 					<arguments>
 						<argument>development.properties</argument>
+						<argument>8000</argument>
 					</arguments>
 				</configuration>
 			</plugin>

@@ -30,11 +30,6 @@ public class ConfigurationTest {
 		}
 		
 		@Test
-		public void itHasAPort() throws Exception {
-			assertEquals(8080, configuration.getPort());
-		}
-		
-		@Test
 		public void itHasAServerName() throws Exception {
 			assertEquals("Wesabe", configuration.getServerName());
 		}
