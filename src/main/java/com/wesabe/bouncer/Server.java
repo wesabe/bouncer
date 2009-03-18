@@ -7,6 +7,7 @@ import com.mchange.v2.c3p0.PooledDataSource;
 import com.sun.grizzly.http.embed.GrizzlyWebServer;
 import com.wesabe.bouncer.adapters.AuthenticationAdapter;
 import com.wesabe.bouncer.adapters.BasicAuthChallengeAdapter;
+import com.wesabe.bouncer.adapters.HealthAdapter;
 import com.wesabe.bouncer.adapters.ProxyAdapter;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
@@ -79,7 +80,14 @@ public class Server {
 			ws.getSelectorThread().setCompression("off");
 		}
 		
-		LOGGER.info("Starting bouncer at http://0.0.0.0:" + config.getPort());
+		LOGGER.info("Starting bouncer at http://0.0.0.0:" + ws.getSelectorThread().getPort());
 		ws.start();
+		
+		
+		GrizzlyWebServer healthWs = new GrizzlyWebServer(config.getPort() + 1000);
+		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
+		healthWs.addGrizzlyAdapter(healthAdapter, new String[] { "/" });
+		LOGGER.info("Starting health-check at http://0.0.0.0:" + healthWs.getSelectorThread().getPort());
+		healthWs.start();
 	}
 }
