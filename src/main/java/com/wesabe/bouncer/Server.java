@@ -78,6 +78,8 @@ public class Server {
 		
 		GrizzlyWebServer ws = new GrizzlyWebServer(port);
 		ws.addGrizzlyAdapter(authenticationAdapter, new String[] { "/" });
+		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
+		ws.addGrizzlyAdapter(healthAdapter, new String[] { "/health/" });
 		
 		if (config.isHttpCompressionEnabled()) {
 			LOGGER.config("gzip-encoding enabled for: " + config.getHttpCompressableMimeTypes());
@@ -90,13 +92,5 @@ public class Server {
 		
 		LOGGER.info("Starting bouncer at http://0.0.0.0:" + ws.getSelectorThread().getPort());
 		ws.start();
-		
-		
-		int healthPort = port + 1000;
-		GrizzlyWebServer healthWs = new GrizzlyWebServer(healthPort);
-		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
-		healthWs.addGrizzlyAdapter(healthAdapter, new String[] { "/" });
-		LOGGER.info("Starting health-check at http://0.0.0.0:" + healthWs.getSelectorThread().getPort());
-		healthWs.start();
 	}
 }
