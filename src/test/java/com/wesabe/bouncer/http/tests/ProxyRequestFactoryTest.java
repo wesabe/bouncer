@@ -14,9 +14,9 @@ import com.sun.grizzly.tcp.InputBuffer;
 import com.sun.grizzly.tcp.Request;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.util.buf.ByteChunk;
-import com.wesabe.bouncer.http.HttpHeaders;
 import com.wesabe.bouncer.http.ProxyRequest;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
+import com.wesabe.bouncer.http.RequestHeaderSet;
 
 @RunWith(Enclosed.class)
 public class ProxyRequestFactoryTest {
@@ -42,13 +42,13 @@ public class ProxyRequestFactoryTest {
 	}
 	
 	public static class Building_A_Request_From_A_Grizzly_Request_Without_An_Entity {
-		private HttpHeaders httpHeaders;
+		private RequestHeaderSet headers;
 		private ProxyRequestFactory factory;
 		private GrizzlyRequest request;
 		
 		@Before
 		public void setup() throws Exception {
-			this.httpHeaders = new HttpHeaders();
+			this.headers = new RequestHeaderSet();
 			
 			Request connectionRequest = new Request();
 			connectionRequest.method().setString("GET");
@@ -63,7 +63,7 @@ public class ProxyRequestFactoryTest {
 			this.request = new GrizzlyRequest();
 			request.setRequest(connectionRequest);
 			
-			this.factory = new ProxyRequestFactory(httpHeaders);
+			this.factory = new ProxyRequestFactory(headers);
 		}
 		
 		private ProxyRequest getRequest() {
@@ -122,13 +122,13 @@ public class ProxyRequestFactoryTest {
 	}
 	
 	public static class Building_A_Request_From_Grizzly_Request_With_An_Entity {
-		private HttpHeaders httpHeaders;
+		private RequestHeaderSet headers;
 		private ProxyRequestFactory factory;
 		private GrizzlyRequest request;
 		
 		@Before
 		public void setup() throws Exception {
-			this.httpHeaders = new HttpHeaders();
+			this.headers = new RequestHeaderSet();
 			
 			Request connectionRequest = new Request();
 			connectionRequest.method().setString("POST");
@@ -140,7 +140,7 @@ public class ProxyRequestFactoryTest {
 			this.request = new GrizzlyRequest();
 			request.setRequest(connectionRequest);
 			
-			this.factory = new ProxyRequestFactory(httpHeaders);
+			this.factory = new ProxyRequestFactory(headers);
 		}
 		
 		@Test

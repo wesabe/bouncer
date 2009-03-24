@@ -13,10 +13,11 @@ import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.http.BackendService;
 import com.wesabe.bouncer.http.HttpClientFactory;
-import com.wesabe.bouncer.http.HttpHeaders;
 import com.wesabe.bouncer.http.ProxyBackendService;
 import com.wesabe.bouncer.http.ProxyRequestFactory;
 import com.wesabe.bouncer.http.ProxyResponseFactory;
+import com.wesabe.bouncer.http.RequestHeaderSet;
+import com.wesabe.bouncer.http.ResponseHeaderSet;
 
 public class Server {
 	private static final Logger LOGGER = Logger.getLogger(Server.class.getCanonicalName());
@@ -40,13 +41,14 @@ public class Server {
 				new HttpClientFactory()
 		);
 		
-		HttpHeaders httpHeaders = new HttpHeaders();
+		RequestHeaderSet requestHeaders = new RequestHeaderSet();
+		ResponseHeaderSet responseHeaders = new ResponseHeaderSet();
 		
-		ProxyRequestFactory requestFactory = new ProxyRequestFactory(httpHeaders);
+		ProxyRequestFactory requestFactory = new ProxyRequestFactory(requestHeaders);
 		
 		ProxyResponseFactory responseFactory = new ProxyResponseFactory(
 				config.getServerName(),
-				httpHeaders
+				responseHeaders
 			);
 		
 		ProxyAdapter proxyAdapter = new ProxyAdapter(

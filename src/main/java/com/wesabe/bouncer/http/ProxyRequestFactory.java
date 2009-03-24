@@ -12,16 +12,15 @@ import com.sun.grizzly.tcp.http11.GrizzlyRequest;
  */
 public class ProxyRequestFactory {
 	private static final String X_FORWARDED_FOR = "X-Forwarded-For";
-	private final HttpHeaders httpHeaders;
+	private final RequestHeaderSet requestHeaders;
 	
 	/**
-	 * Given a set of valid {@link HttpHeaders}, create a new
-	 * {@link ProxyRequestFactory}.
+	 * Given a set of valid headers, create a new {@link ProxyRequestFactory}.
 	 * 
-	 * @param httpHeaders a set of valid {@link HttpHeaders}
+	 * @param requestHeaders a set of valid response headers
 	 */
-	public ProxyRequestFactory(HttpHeaders httpHeaders) {
-		this.httpHeaders = httpHeaders;
+	public ProxyRequestFactory(RequestHeaderSet requestHeaders) {
+		this.requestHeaders = requestHeaders;
 	}
 	
 	/**
@@ -46,7 +45,7 @@ public class ProxyRequestFactory {
 		Enumeration<?> headerNames = request.getHeaderNames();
 		while (headerNames.hasMoreElements()) {
 			String headerName = (String) headerNames.nextElement();
-			if (httpHeaders.isValidRequestHeader(headerName)) {
+			if (requestHeaders.contains(headerName)) {
 				proxyRequest.setHeader(headerName, request.getHeader(headerName));
 			}
 		}

@@ -23,18 +23,18 @@ import com.sun.grizzly.tcp.http11.GrizzlyResponse;
 public class ProxyResponseFactory {
 	private static final int BUFFER_SIZE = 16 * 1024;
 	private final String serverName;
-	private final HttpHeaders httpHeaders;
+	private final ResponseHeaderSet headers;
 
 	/**
-	 * Given a set of valid {@link HttpHeaders}, and a server name, create a new
+	 * Given a set of valid headers, and a server name, create a new
 	 * {@link ProxyRequestFactory}.
 	 * 
 	 * @param serverName the name of the server
-	 * @param httpHeaders a set of valid {@link HttpHeaders}
+	 * @param headers a set of valid headers
 	 */
-	public ProxyResponseFactory(String serverName, HttpHeaders httpHeaders) {
+	public ProxyResponseFactory(String serverName, ResponseHeaderSet headers) {
 		this.serverName = serverName;
-		this.httpHeaders = httpHeaders;
+		this.headers = headers;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ProxyResponseFactory {
 	@SuppressWarnings("unchecked")
 	private void copyHeaders(HttpResponse proxyResponse, GrizzlyResponse response) {
 		for (Header header : proxyResponse.getAllHeaders()) {
-			if (httpHeaders.isValidResponseHeader(header.getName())) {
+			if (headers.contains(header.getName())) {
 				response.setHeader(header.getName(), header.getValue());
 			}
 		}
