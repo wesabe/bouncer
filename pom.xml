@@ -83,13 +83,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
 					<mainClass>com.wesabe.bouncer.Server</mainClass>
 					<arguments>
