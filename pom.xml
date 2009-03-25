@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>com.sun.grizzly</groupId>
 			<artifactId>grizzly-http-webserver</artifactId>
-			<version>1.9.7</version>
+			<version>1.9.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
