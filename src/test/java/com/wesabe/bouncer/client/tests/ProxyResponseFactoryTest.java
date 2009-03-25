@@ -52,7 +52,7 @@ public class ProxyResponseFactoryTest {
 			this.proxyResponse = new BasicHttpResponse(
 				new ProtocolVersion("http", 1, 1), 301, "Permanently Moved"
 			);
-			proxyResponse.setHeader("Date", "RIGHT NOW");
+			proxyResponse.setHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT");
 			proxyResponse.setHeader("Location", "https://api.wesabe.com/v2/blah");
 			proxyResponse.setHeader("Server", "Snooper Secret");
 			proxyResponse.setHeader("Accept", "STUFF");
@@ -85,7 +85,7 @@ public class ProxyResponseFactoryTest {
 		
 		@Test
 		public void itCopiesValidGeneralHeaders() throws Exception {
-			assertEquals("[Date: RIGHT NOW]", getHeaderValues("Date"));
+			assertEquals("[Date: Sun, 06 Nov 1994 08:49:37 GMT]", getHeaderValues("Date"));
 		}
 		
 		@Test
@@ -118,7 +118,7 @@ public class ProxyResponseFactoryTest {
 			this.proxyResponse = new BasicHttpResponse(
 				new ProtocolVersion("http", 1, 1), 200, "THAT WAS AWESOME"
 			);
-			proxyResponse.setHeader("Date", "RIGHT NOW");
+			proxyResponse.setHeader("Date", "Sun, 06 Nov 1994 08:49:37 GMT");
 			proxyResponse.setHeader("Vary", "User-Agent");
 			proxyResponse.setHeader("Server", "Snooper Secret");
 			proxyResponse.setHeader("Accept", "STUFF");
@@ -148,7 +148,7 @@ public class ProxyResponseFactoryTest {
 		
 		@Test
 		public void itCopiesValidGeneralHeaders() throws Exception {
-			assertEquals("[Date: RIGHT NOW]", getHeaderValues("Date"));
+			assertEquals("[Date: Sun, 06 Nov 1994 08:49:37 GMT]", getHeaderValues("Date"));
 		}
 		
 		@Test

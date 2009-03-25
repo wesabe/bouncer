@@ -109,7 +109,9 @@ public abstract class AbstractHeaderSet {
 	);
 	
 	private static final ImmutableMap<String, HeaderValueValidator> HEADER_VALUE_VALIDATORS = ImmutableMap.of(
-		// nothing yet
+		"date",				(HeaderValueValidator) new DateHeaderValueValidator(),
+		"last-modified", 	(HeaderValueValidator) new DateHeaderValueValidator(),
+		"expires", 			(HeaderValueValidator) new DateHeaderValueValidator()
 	);
 	
 	private static final HeaderValueValidator DEFAULT_HEADER_VALUE_VALIDATOR = new HeaderValueValidator();

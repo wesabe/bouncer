@@ -54,7 +54,7 @@ public class ProxyRequestFactoryTest {
 			connectionRequest.method().setString("GET");
 			connectionRequest.requestURI().setString("/hello");
 			connectionRequest.remoteAddr().setString("123.45.67.89");
-			connectionRequest.getMimeHeaders().setValue("Date").setString("RIGHT NOW");
+			connectionRequest.getMimeHeaders().setValue("Date").setString("Sun, 06 Nov 1994 08:49:37 GMT");
 			connectionRequest.getMimeHeaders().setValue("Content-Type").setString("text/xml");
 			connectionRequest.getMimeHeaders().setValue("Accept").setString("text/xml");
 			connectionRequest.getMimeHeaders().setValue("X-Death").setString("FUEGO");
@@ -93,7 +93,7 @@ public class ProxyRequestFactoryTest {
 		
 		@Test
 		public void itCopiesOverAllValidGeneralHeaders() throws Exception {
-			assertEquals("[Date: RIGHT NOW]", getRequestHeader("Date"));
+			assertEquals("[Date: Sun, 06 Nov 1994 08:49:37 GMT]", getRequestHeader("Date"));
 		}
 		
 		@Test
