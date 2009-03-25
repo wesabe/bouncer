@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.security;
 
 import java.util.Locale;
 import java.util.Set;

@@ -11,13 +11,13 @@ import com.wesabe.bouncer.adapters.HealthAdapter;
 import com.wesabe.bouncer.adapters.ProxyAdapter;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
-import com.wesabe.bouncer.http.BackendService;
-import com.wesabe.bouncer.http.HttpClientFactory;
-import com.wesabe.bouncer.http.ProxyBackendService;
-import com.wesabe.bouncer.http.ProxyRequestFactory;
-import com.wesabe.bouncer.http.ProxyResponseFactory;
-import com.wesabe.bouncer.http.RequestHeaderSet;
-import com.wesabe.bouncer.http.ResponseHeaderSet;
+import com.wesabe.bouncer.client.BackendService;
+import com.wesabe.bouncer.client.HttpClientFactory;
+import com.wesabe.bouncer.client.ProxyBackendService;
+import com.wesabe.bouncer.client.ProxyRequestFactory;
+import com.wesabe.bouncer.client.ProxyResponseFactory;
+import com.wesabe.bouncer.security.RequestHeaderSet;
+import com.wesabe.bouncer.security.ResponseHeaderSet;
 
 public class Server {
 	private static final Logger LOGGER = Logger.getLogger(Server.class.getCanonicalName());

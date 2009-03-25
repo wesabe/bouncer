@@ -1,10 +1,10 @@
-package com.wesabe.bouncer.http.tests;
+package com.wesabe.bouncer.security.tests;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.wesabe.bouncer.http.RequestHeaderSet;
+import com.wesabe.bouncer.security.RequestHeaderSet;
 
 public class RequestHeaderSetTest {
 	private final RequestHeaderSet set = new RequestHeaderSet();

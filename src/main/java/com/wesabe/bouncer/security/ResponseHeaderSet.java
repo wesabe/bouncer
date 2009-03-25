@@ -1,15 +1,15 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.security;
 
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 /**
- * A set of valid request headers.
+ * A set of valid response headers.
  * 
  * @author coda
  */
-public class RequestHeaderSet extends AbstractHeaderSet {
+public class ResponseHeaderSet extends AbstractHeaderSet {
 	
 	/* (non-Javadoc)
 	 * @see com.wesabe.bouncer2.http.AbstractHeaderSet#getHeaders()
@@ -20,10 +20,11 @@ public class RequestHeaderSet extends AbstractHeaderSet {
 		
 		headers.addAll(GENERAL_HEADERS);
 		headers.addAll(ENTITY_HEADERS);
-		headers.addAll(REQUEST_HEADERS);
+		headers.addAll(RESPONSE_HEADERS);
 		
 		headers.removeAll(UNPROXYABLE_HEADERS);
 		
 		return headers;
 	}
+
 }

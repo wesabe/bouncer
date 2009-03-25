@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.client;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;

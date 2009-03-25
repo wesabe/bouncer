@@ -1,8 +1,9 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.client;
 
 import java.util.Enumeration;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
+import com.wesabe.bouncer.security.RequestHeaderSet;
 
 /**
  * A factory class for building {@link ProxyRequest}s based on the information

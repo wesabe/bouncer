@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.client;
 
 import java.io.InputStream;
 import java.net.URI;

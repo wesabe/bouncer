@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http.tests;
+package com.wesabe.bouncer.client.tests;
 
 import static org.junit.Assert.*;
 
@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import com.wesabe.bouncer.http.ProxyRequest;
+import com.wesabe.bouncer.client.ProxyRequest;
 
 @RunWith(Enclosed.class)
 public class ProxyRequestTest {

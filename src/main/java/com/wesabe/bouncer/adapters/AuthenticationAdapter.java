@@ -47,6 +47,7 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void service(GrizzlyRequest request, GrizzlyResponse response) {
+		System.err.println(request.getRequestURI());
 		try {
 			if (request.getMethod().equalsIgnoreCase("GET") && request.getRequestURI().equals("/health/")) {
 				healthAdapter.service(request, response);

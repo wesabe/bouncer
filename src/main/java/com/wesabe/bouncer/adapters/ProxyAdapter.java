@@ -10,10 +10,10 @@ import org.apache.http.HttpResponse;
 import com.sun.grizzly.tcp.http11.GrizzlyAdapter;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
-import com.wesabe.bouncer.http.BackendService;
-import com.wesabe.bouncer.http.ProxyRequest;
-import com.wesabe.bouncer.http.ProxyRequestFactory;
-import com.wesabe.bouncer.http.ProxyResponseFactory;
+import com.wesabe.bouncer.client.BackendService;
+import com.wesabe.bouncer.client.ProxyRequest;
+import com.wesabe.bouncer.client.ProxyRequestFactory;
+import com.wesabe.bouncer.client.ProxyResponseFactory;
 
 public class ProxyAdapter extends GrizzlyAdapter {
 	private static final Logger LOGGER = Logger.getLogger(ProxyAdapter.class.getName());

@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http;
+package com.wesabe.bouncer.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,7 @@ import org.apache.http.HttpResponse;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
+import com.wesabe.bouncer.security.ResponseHeaderSet;
 
 /**
  * A factory class for building {@link GrizzlyRequest}s based on the information

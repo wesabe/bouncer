@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.http.tests;
+package com.wesabe.bouncer.client.tests;
 
 import static org.junit.Assert.*;
 
@@ -20,8 +20,8 @@ import com.sun.grizzly.tcp.OutputBuffer;
 import com.sun.grizzly.tcp.Response;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
 import com.sun.grizzly.util.buf.ByteChunk;
-import com.wesabe.bouncer.http.ProxyResponseFactory;
-import com.wesabe.bouncer.http.ResponseHeaderSet;
+import com.wesabe.bouncer.client.ProxyResponseFactory;
+import com.wesabe.bouncer.security.ResponseHeaderSet;
 
 @RunWith(Enclosed.class)
 public class ProxyResponseFactoryTest {
