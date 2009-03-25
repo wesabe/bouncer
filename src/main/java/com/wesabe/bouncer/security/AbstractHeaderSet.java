@@ -3,6 +3,7 @@ package com.wesabe.bouncer.security;
 import java.util.Locale;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
@@ -107,14 +108,11 @@ public abstract class AbstractHeaderSet {
 		"Upgrade"
 	);
 	
-	private static final ImmutableSet<Character> VALID_HEADER_VALUE_CHARACTERS = ImmutableSet.of(
-		'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-		'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
-		'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-		'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3',
-		'4', '5', '6', '7', '8', '9', '(', ')', '-', '=', '*', '.', '?', ';',
-		',', '+', '/', ':', '&', '_', ' '
+	private static final ImmutableMap<String, HeaderValueValidator> HEADER_VALUE_VALIDATORS = ImmutableMap.of(
+		// nothing yet
 	);
+	
+	private static final HeaderValueValidator DEFAULT_HEADER_VALUE_VALIDATOR = new HeaderValueValidator();
 	
 	private final ImmutableSet<String> headers;
 	
@@ -153,30 +151,18 @@ public abstract class AbstractHeaderSet {
 	 * 			{@code value} is valid
 	 */
 	public boolean contains(String name, String value) {
-		return headers.contains(downcase(name)) && isValidHeaderValue(value);
+		final String downcasedName = downcase(name);
+		return headers.contains(downcasedName) && isValidHeaderValue(downcasedName, value);
 	}
 	
-	/**
-	 * Returns {@code true} if {@code value} is a valid HTTP header value.
-	 * 
-	 * @param value
-	 * @return {@code true} if {@code value} is a valid HTTP header value
-	 */
-	private boolean isValidHeaderValue(String value) {
-		for (int i = 0; i < value.length(); i++) {
-			if (!VALID_HEADER_VALUE_CHARACTERS.contains(Character.valueOf(value.charAt(i)))) {
-				return false;
-			}
+	private boolean isValidHeaderValue(String name, String value) {
+		HeaderValueValidator validator = HEADER_VALUE_VALIDATORS.get(name);
+		if (validator == null) {
+			validator = DEFAULT_HEADER_VALUE_VALIDATOR;
 		}
-		return true;
+		return validator.isValid(value);
 	}
 	
-	/**
-	 * Downcase a header field name using the US {@link Locale}.
-	 * 
-	 * @param header an HTTP header field name
-	 * @return {@code header} in lowercase
-	 */
 	private String downcase(String header) {
 		return header.toLowerCase(Locale.US);
 	}
