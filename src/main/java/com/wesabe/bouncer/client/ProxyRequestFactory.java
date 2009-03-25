@@ -1,6 +1,7 @@
 package com.wesabe.bouncer.client;
 
 import java.util.Enumeration;
+import java.util.logging.Logger;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.wesabe.bouncer.security.RequestHeaderSet;
@@ -12,6 +13,7 @@ import com.wesabe.bouncer.security.RequestHeaderSet;
  * @author coda
  */
 public class ProxyRequestFactory {
+	private static final Logger LOGGER = Logger.getLogger(ProxyRequestFactory.class.getCanonicalName());
 	private static final String X_FORWARDED_FOR = "X-Forwarded-For";
 	private final RequestHeaderSet requestHeaders;
 	
@@ -46,8 +48,11 @@ public class ProxyRequestFactory {
 		Enumeration<?> headerNames = request.getHeaderNames();
 		while (headerNames.hasMoreElements()) {
 			String headerName = (String) headerNames.nextElement();
-			if (requestHeaders.contains(headerName)) {
-				proxyRequest.setHeader(headerName, request.getHeader(headerName));
+			final String headerValue = request.getHeader(headerName);
+			if (requestHeaders.contains(headerName, headerValue)) {
+				proxyRequest.setHeader(headerName, headerValue);
+			} else {
+				LOGGER.info("Dropped request header: " + headerName + ":" + headerValue);
 			}
 		}
 	}

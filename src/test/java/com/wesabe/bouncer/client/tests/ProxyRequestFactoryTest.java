@@ -59,6 +59,7 @@ public class ProxyRequestFactoryTest {
 			connectionRequest.getMimeHeaders().setValue("Accept").setString("text/xml");
 			connectionRequest.getMimeHeaders().setValue("X-Death").setString("FUEGO");
 			connectionRequest.getMimeHeaders().setValue("Server").setString("ALSO FUEGO");
+			connectionRequest.getMimeHeaders().setValue("Expect").setString("SMUGGLE \n\n 4 LIFE");
 			
 			this.request = new GrizzlyRequest();
 			request.setRequest(connectionRequest);
@@ -108,6 +109,11 @@ public class ProxyRequestFactoryTest {
 		@Test
 		public void itDoesNotCopyOverAnyOtherHeaders() throws Exception {
 			assertEquals("[]", getRequestHeader("X-Death"));
+		}
+		
+		@Test
+		public void itDoesNotCopyOverHeadersWithBadValues() throws Exception {
+			assertEquals("[]", getRequestHeader("Expect"));
 		}
 		
 		@Test

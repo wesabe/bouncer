@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.logging.Logger;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import com.wesabe.bouncer.security.ResponseHeaderSet;
  * @author coda
  */
 public class ProxyResponseFactory {
+	private static final Logger LOGGER = Logger.getLogger(ProxyResponseFactory.class.getCanonicalName());
 	private static final int BUFFER_SIZE = 16 * 1024;
 	private final String serverName;
 	private final ResponseHeaderSet headers;
@@ -59,8 +61,13 @@ public class ProxyResponseFactory {
 	@SuppressWarnings("unchecked")
 	private void copyHeaders(HttpResponse proxyResponse, GrizzlyResponse response) {
 		for (Header header : proxyResponse.getAllHeaders()) {
-			if (headers.contains(header.getName())) {
-				response.setHeader(header.getName(), header.getValue());
+			final String name = header.getName();
+			final String value = header.getValue();
+			
+			if (headers.contains(name, value)) {
+				response.setHeader(name, value);
+			} else {
+				LOGGER.info("Dropped response header: " + name + ":" + value);
 			}
 		}
 	}
