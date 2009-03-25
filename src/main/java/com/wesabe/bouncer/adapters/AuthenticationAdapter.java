@@ -20,8 +20,7 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 	private static final Logger LOGGER = Logger.getLogger(AuthenticationAdapter.class.getName());
 
 	private final Authenticator authenticator;
-	private final GrizzlyAdapter challengeAdapter;
-	private final GrizzlyAdapter passthroughAdapter;
+	private final GrizzlyAdapter challengeAdapter, passthroughAdapter, healthAdapter;
 	
 	/**
 	 * Creates a new AuthenticationAdapter.
@@ -34,11 +33,12 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 	 *                           sent
 	 */
 	public AuthenticationAdapter(Authenticator authenticator, GrizzlyAdapter challengeAdapter,
-			GrizzlyAdapter passthroughAdapter) {
+			GrizzlyAdapter passthroughAdapter, GrizzlyAdapter healthAdapter) {
 		super();
 		this.authenticator = authenticator;
 		this.challengeAdapter = challengeAdapter;
 		this.passthroughAdapter = passthroughAdapter;
+		this.healthAdapter = healthAdapter;
 	}
 	
 	/* (non-Javadoc)
@@ -48,12 +48,16 @@ public class AuthenticationAdapter extends GrizzlyAdapter {
 	@Override
 	public void service(GrizzlyRequest request, GrizzlyResponse response) {
 		try {
-			final Principal principal = authenticator.authenticate(request);
-			if (principal != null) {
-				markAsAuthenticated(request, principal);
-				passthroughAdapter.service(request, response);
+			if (request.getMethod().equalsIgnoreCase("GET") && request.getRequestURI().equals("/health/")) {
+				healthAdapter.service(request, response);
 			} else {
-				challengeAdapter.service(request, response);
+				final Principal principal = authenticator.authenticate(request);
+				if (principal != null) {
+					markAsAuthenticated(request, principal);
+					passthroughAdapter.service(request, response);
+				} else {
+					challengeAdapter.service(request, response);
+				}
 			}
 		} catch (Exception e) {
 			LOGGER.log(Level.SEVERE, "Error authenticating request", e);

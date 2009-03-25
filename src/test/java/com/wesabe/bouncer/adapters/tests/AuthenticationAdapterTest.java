@@ -24,6 +24,7 @@ public class AuthenticationAdapterTest {
 		protected Authenticator authenticator;
 		protected GrizzlyAdapter challengeAdapter;
 		protected GrizzlyAdapter passthroughAdapter;
+		protected GrizzlyAdapter healthAdapter;
 		protected AuthenticationAdapter adapter;
 		protected GrizzlyRequest request;
 		@SuppressWarnings("unchecked")
@@ -32,16 +33,38 @@ public class AuthenticationAdapterTest {
 		
 		protected void setup() throws Exception {
 			this.authenticator = mock(Authenticator.class);
+			this.healthAdapter = mock(GrizzlyAdapter.class);
 			this.challengeAdapter = mock(GrizzlyAdapter.class);
 			this.passthroughAdapter = mock(GrizzlyAdapter.class);
 			
 			this.connectionRequest = new Request();
+			connectionRequest.method().setString("GET");
+			connectionRequest.requestURI().setString("/dingo");
+			
 			this.request = new GrizzlyRequest();
 			request.setRequest(connectionRequest);
 			
 			this.response = mock(GrizzlyResponse.class);
 			
-			this.adapter = new AuthenticationAdapter(authenticator, challengeAdapter, passthroughAdapter);
+			this.adapter = new AuthenticationAdapter(authenticator, challengeAdapter, passthroughAdapter, healthAdapter);
+		}
+	}
+	
+	public static class Handling_A_Health_Request extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			connectionRequest.method().setString("GET");
+			connectionRequest.requestURI().setString("/health/");
+		}
+		
+		@Test
+		public void itPassesTheRequestToTheChallengeAdapter() throws Exception {
+			adapter.service(request, response);
+			
+			verify(healthAdapter).service(request, response);
 		}
 	}
 	
@@ -55,7 +78,7 @@ public class AuthenticationAdapterTest {
 		}
 		
 		@Test
-		public void itShouldPassTheRequestToTheChallengeAdapter() throws Exception {
+		public void itPassesTheRequestToTheChallengeAdapter() throws Exception {
 			adapter.service(request, response);
 			
 			InOrder inOrder = inOrder(authenticator, challengeAdapter);

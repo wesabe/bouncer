@@ -68,20 +68,21 @@ public class Server {
 				config.getC3P0Properties()
 		);
 
+		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
+		
 		Authenticator authenticator = new WesabeAuthenticator(dataSource);
 		
 		AuthenticationAdapter authenticationAdapter = new AuthenticationAdapter(
 				authenticator,
 				challengeAdapter,
-				proxyAdapter
+				proxyAdapter,
+				healthAdapter
 		);
 		
 		int port = Integer.valueOf(args[PORT_IDX]);
 		
 		GrizzlyWebServer ws = new GrizzlyWebServer(port);
-		ws.addGrizzlyAdapter(authenticationAdapter, new String[] { "/" });
-		HealthAdapter healthAdapter = new HealthAdapter(dataSource);
-		ws.addGrizzlyAdapter(healthAdapter, new String[] { "/health/" });
+		ws.addGrizzlyAdapter(authenticationAdapter, new String[] {});
 		
 		if (config.isHttpCompressionEnabled()) {
 			LOGGER.config("gzip-encoding enabled for: " + config.getHttpCompressableMimeTypes());
