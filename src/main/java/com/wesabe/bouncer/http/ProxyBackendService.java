@@ -1,7 +1,6 @@
 package com.wesabe.bouncer.http;
 
 import java.net.URI;
-import java.util.logging.Logger;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -16,7 +15,6 @@ import org.apache.http.client.HttpClient;
  *
  */
 public class ProxyBackendService implements BackendService {
-	private static final Logger LOGGER = Logger.getLogger(ProxyBackendService.class.getSimpleName());
 	private final URI uri;
 	private final HttpClient httpClient;
 	
@@ -28,7 +26,6 @@ public class ProxyBackendService implements BackendService {
 	@Override
 	public HttpResponse execute(ProxyRequest request) throws HttpException {
 		try {
-			LOGGER.info(String.format("%s %s", request.getMethod(), request.getURI().toString()));
 			return httpClient.execute(resolve(request));
 		} catch (Exception e) {
 			throw new HttpException("error executing request", e);
