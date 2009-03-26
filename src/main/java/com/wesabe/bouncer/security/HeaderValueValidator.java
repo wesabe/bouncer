@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
  * @author coda
  *
  */
-public class HeaderValueValidator {
+public class HeaderValueValidator implements Validator<String> {
 	/**
 	 * The set of valid characters for HTTP header field values. Pinched from
 	 * OWASP's ESAPI code.
@@ -32,6 +32,7 @@ public class HeaderValueValidator {
 	 * @param value a potentially valid HTTP header
 	 * @return whether or not {@code header} is valid
 	 */
+	@Override
 	public boolean isValid(String value) {
 		for (int i = 0; i < value.length(); i++) {
 			final Character character = Character.valueOf(value.charAt(i));
