@@ -68,7 +68,7 @@ class Deploy < RobotArmy::TaskMaster
   end
   
   def stage(jar_location)
-    say "Staging #{app} into #{root} (takes about a minute)"
+    say "Staging #{app} into #{root} (takes about two minutes)"
     cptemp(jar_location, :user => :bouncer) do |path|
       FileUtils.cp(path, root)
       path
@@ -84,7 +84,7 @@ class Deploy < RobotArmy::TaskMaster
   end
   
   def restart
-    say "Restarting #{app} (takes about 2 minutes)"
+    say "Restarting #{app} (takes less than a minute)"
     sudo do
       %x{ /etc/init.d/#{app} restart }
     end
