@@ -9,6 +9,11 @@ import java.net.URISyntaxException;
  * @author coda
  */
 public class UriValidator implements Validator<String> {
+	
+	// REVIEW coda@wesabe.com -- Mar 26, 2009: Deal with double-encoded URIs.
+	// see http://www.owasp.org/index.php/Double_Encoding
+	// We should decode a URI until it no longer changes (or until we get bored)
+	
 	@Override
 	public boolean isValid(String uri) {
 		try {
