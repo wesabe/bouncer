@@ -6,25 +6,24 @@ import java.util.Locale;
 import com.google.common.collect.ForwardingMultimap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 public class CaseInsensitiveMultimap extends ForwardingMultimap<String, String> {
 	private final ImmutableMultimap<String, String> headers;
 	
 	public static class Builder {
-		private final Multimap<String, String> headers;
+		private final com.google.common.collect.ImmutableMultimap.Builder<String, String> builder;
 		
 		private Builder() {
-			this.headers = Multimaps.newArrayListMultimap();
+			this.builder = ImmutableMultimap.builder();
 		}
 		
 		public Builder put(String key, String value) {
-			headers.put(downcase(key), value);
+			builder.put(downcase(key), value);
 			return this;
 		}
 		
 		public CaseInsensitiveMultimap build() {
-			return new CaseInsensitiveMultimap(ImmutableMultimap.copyOf(headers));
+			return new CaseInsensitiveMultimap(builder.build());
 		}
 	}
 	
