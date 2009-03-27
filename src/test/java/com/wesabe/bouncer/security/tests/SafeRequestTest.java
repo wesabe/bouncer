@@ -206,4 +206,44 @@ public class SafeRequestTest {
 			assertSame(stream, safeRequest.getEntity());
 		}
 	}
+	
+	public static class Accessing_The_Remote_IP {
+		private GrizzlyRequest request;
+		private String ip;
+		
+		@Before
+		public void setup() throws Exception {
+			this.ip = "1.3.11.9";
+			
+			this.request = mock(GrizzlyRequest.class);
+			when(request.getRemoteAddr()).thenReturn(ip);
+		}
+		
+		@Test
+		public void itPassesTheIPStraightThrough() throws Exception {
+			SafeRequest safeRequest = new SafeRequest(request);
+			
+			assertSame(ip, safeRequest.getRemoteAddr());
+		}
+	}
+	
+	public static class Accessing_The_Method {
+		private GrizzlyRequest request;
+		private String method;
+		
+		@Before
+		public void setup() throws Exception {
+			this.method = "GET";
+			
+			this.request = mock(GrizzlyRequest.class);
+			when(request.getMethod()).thenReturn(method);
+		}
+		
+		@Test
+		public void itPassesTheMethodStraightThrough() throws Exception {
+			SafeRequest safeRequest = new SafeRequest(request);
+			
+			assertSame(method, safeRequest.getMethod());
+		}
+	}
 }

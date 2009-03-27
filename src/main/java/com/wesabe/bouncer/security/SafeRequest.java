@@ -8,6 +8,7 @@ import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -34,6 +35,7 @@ public class SafeRequest {
 		),
 		new HeaderValueValidator()
 	);
+	private static final Logger LOGGER = Logger.getLogger(SafeRequest.class.getCanonicalName());
 	private final GrizzlyRequest request;
 	private final RequestHeaderSet headerSet;
 	
@@ -85,8 +87,12 @@ public class SafeRequest {
 					final String headerValue = (String) headerValues.nextElement();
 					if (HEADER_VALIDATORS.get(normalizedHeaderName).isValid(headerValue)) {
 						builder.put(headerName, headerValue);
+					} else {
+						LOGGER.info("Dropped header from request, invalid value: " + headerName + "=" + headerValue);
 					}
 				}
+			} else {
+				LOGGER.info("Dropped header from request, invalid name: " + headerName);
 			}
 		}
 		
@@ -101,7 +107,34 @@ public class SafeRequest {
 	public InputStream getEntity() {
 		return request.getStream();
 	}
-
+	
+	/**
+	 * Returns the client's IP address.
+	 * 
+	 * @return the client's IP address
+	 */
+	public String getRemoteAddr() {
+		return request.getRemoteAddr();
+	}
+	
+	/**
+	 * Returns the request's method.
+	 * 
+	 * @return the request's method
+	 */
+	public String getMethod() {
+		return request.getMethod();
+	}
+	
+	/**
+	 * Returns the request's content length.
+	 * 
+	 * @return the request's content length
+	 */
+	public int getContentLength() {
+		return request.getContentLength();
+	}
+	
 	private String decodeURI(String encodedUri) throws URISyntaxException {
 		try {
 			String uri = encodedUri;
@@ -117,5 +150,9 @@ public class SafeRequest {
 		}
 		
 		throw new URISyntaxException(encodedUri, "was encoded more than " + MAX_DECODE_DEPTH + " times");
+	}
+
+	public GrizzlyRequest getRequest() {
+		return request;
 	}
 }
