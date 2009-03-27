@@ -35,6 +35,7 @@ public class SafeRequest {
 		),
 		new HeaderValueValidator()
 	);
+	private static final MethodValidator METHOD_VALIDATOR = new MethodValidator();
 	private static final Logger LOGGER = Logger.getLogger(SafeRequest.class.getCanonicalName());
 	private final GrizzlyRequest request;
 	private final RequestHeaderSet headerSet;
@@ -122,7 +123,14 @@ public class SafeRequest {
 	 * 
 	 * @return the request's method
 	 */
-	public String getMethod() {
+	public String getMethod() throws BadRequestException {
+		final String method = request.getMethod();
+		if (!METHOD_VALIDATOR.isValid(method)) {
+			throw new BadRequestException(
+				request,
+				new IllegalArgumentException(method + " is not a valid method")
+			);
+		}
 		return request.getMethod();
 	}
 	

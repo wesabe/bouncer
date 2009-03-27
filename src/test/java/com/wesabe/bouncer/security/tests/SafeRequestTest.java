@@ -227,7 +227,7 @@ public class SafeRequestTest {
 		}
 	}
 	
-	public static class Accessing_The_Method {
+	public static class Accepting_Valid_Methods {
 		private GrizzlyRequest request;
 		private String method;
 		
@@ -240,10 +240,34 @@ public class SafeRequestTest {
 		}
 		
 		@Test
-		public void itPassesTheMethodStraightThrough() throws Exception {
+		public void itAcceptsTheMethod() throws Exception {
 			SafeRequest safeRequest = new SafeRequest(request);
 			
-			assertSame(method, safeRequest.getMethod());
+			assertEquals(method, safeRequest.getMethod());
+		}
+	}
+	
+	public static class Rejecting_Invalid_Methods {
+		private GrizzlyRequest request;
+		private String method;
+		
+		@Before
+		public void setup() throws Exception {
+			this.method = "GET\0\0";
+			
+			this.request = mock(GrizzlyRequest.class);
+			when(request.getMethod()).thenReturn(method);
+		}
+		
+		@Test
+		public void itThrowsABadRequestException() throws Exception {
+			SafeRequest safeRequest = new SafeRequest(request);
+			try {
+				safeRequest.getMethod();
+				fail("should have rejected the invalid URI");
+			} catch (BadRequestException e) {
+				assertSame(request, e.getBadRequest());
+			}
 		}
 	}
 }
