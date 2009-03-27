@@ -14,6 +14,7 @@ import com.wesabe.bouncer.client.BackendService;
 import com.wesabe.bouncer.client.ProxyRequest;
 import com.wesabe.bouncer.client.ProxyRequestFactory;
 import com.wesabe.bouncer.client.ProxyResponseFactory;
+import com.wesabe.bouncer.security.BadRequestException;
 import com.wesabe.bouncer.security.SafeRequest;
 
 public class ProxyAdapter extends GrizzlyAdapter {
@@ -43,6 +44,13 @@ public class ProxyAdapter extends GrizzlyAdapter {
 			} catch (HttpException e) {
 				LOGGER.log(Level.SEVERE, "Error proxying request to gateway", e);
 				response.sendError(BAD_GATEWAY);
+			}
+		} catch (BadRequestException e) {
+			try {
+				LOGGER.log(Level.SEVERE, "Bad reqest", e);
+				response.sendError(400);
+			} catch (IOException e1) {
+				LOGGER.log(Level.SEVERE, "Unhandled internal error", e1);
 			}
 		} catch (Exception e) {
 			try {
