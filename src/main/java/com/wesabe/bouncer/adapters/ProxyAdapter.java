@@ -14,6 +14,7 @@ import com.wesabe.bouncer.client.BackendService;
 import com.wesabe.bouncer.client.ProxyRequest;
 import com.wesabe.bouncer.client.ProxyRequestFactory;
 import com.wesabe.bouncer.client.ProxyResponseFactory;
+import com.wesabe.bouncer.security.SafeRequest;
 
 public class ProxyAdapter extends GrizzlyAdapter {
 	private static final Logger LOGGER = Logger.getLogger(ProxyAdapter.class.getName());
@@ -35,7 +36,7 @@ public class ProxyAdapter extends GrizzlyAdapter {
 	public void service(GrizzlyRequest request, GrizzlyResponse response) {
 		try {
 			try {
-				ProxyRequest proxyRequest = requestFactory.buildFromGrizzlyRequest(request);
+				ProxyRequest proxyRequest = requestFactory.buildFromGrizzlyRequest(new SafeRequest(request));
 				HttpResponse proxyResponse = backendService.execute(proxyRequest);
 				responseFactory.buildFromHttpResponse(proxyResponse, response);
 				response.finishResponse();

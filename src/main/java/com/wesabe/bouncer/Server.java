@@ -16,7 +16,6 @@ import com.wesabe.bouncer.client.HttpClientFactory;
 import com.wesabe.bouncer.client.ProxyBackendService;
 import com.wesabe.bouncer.client.ProxyRequestFactory;
 import com.wesabe.bouncer.client.ProxyResponseFactory;
-import com.wesabe.bouncer.security.RequestHeaderSet;
 import com.wesabe.bouncer.security.ResponseHeaderSet;
 
 public class Server {
@@ -41,10 +40,9 @@ public class Server {
 				new HttpClientFactory()
 		);
 		
-		RequestHeaderSet requestHeaders = new RequestHeaderSet();
 		ResponseHeaderSet responseHeaders = new ResponseHeaderSet();
 		
-		ProxyRequestFactory requestFactory = new ProxyRequestFactory(requestHeaders);
+		ProxyRequestFactory requestFactory = new ProxyRequestFactory();
 		
 		ProxyResponseFactory responseFactory = new ProxyResponseFactory(
 				config.getServerName(),

@@ -1,67 +1,49 @@
 package com.wesabe.bouncer.client;
 
-import java.util.Enumeration;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
 
-import com.sun.grizzly.tcp.http11.GrizzlyRequest;
-import com.wesabe.bouncer.security.RequestHeaderSet;
+import com.wesabe.bouncer.security.BadRequestException;
+import com.wesabe.bouncer.security.SafeRequest;
 
 /**
  * A factory class for building {@link ProxyRequest}s based on the information
- * in {@link GrizzlyRequest}s.
+ * in {@link SafeRequest}s.
  * 
  * @author coda
  */
 public class ProxyRequestFactory {
-	private static final Logger LOGGER = Logger.getLogger(ProxyRequestFactory.class.getCanonicalName());
 	private static final String X_FORWARDED_FOR = "X-Forwarded-For";
-	private final RequestHeaderSet requestHeaders;
 	
 	/**
-	 * Given a set of valid headers, create a new {@link ProxyRequestFactory}.
-	 * 
-	 * @param requestHeaders a set of valid response headers
-	 */
-	public ProxyRequestFactory(RequestHeaderSet requestHeaders) {
-		this.requestHeaders = requestHeaders;
-	}
-	
-	/**
-	 * Given an incoming {@link GrizzlyRequest}, build a corresponding
+	 * Given an incoming {@link SafeRequest}, build a corresponding
 	 * {@link ProxyRequest}.
 	 * 
-	 * @param request an incoming {@link GrizzlyRequest}
+	 * @param request an incoming {@link SafeRequest}
 	 * @return a corresponding {@link ProxyRequest}
+	 * @throws BadRequestException if the request should be rejected
 	 */
-	public ProxyRequest buildFromGrizzlyRequest(GrizzlyRequest request) {
+	public ProxyRequest buildFromGrizzlyRequest(SafeRequest request) throws BadRequestException {
 		final ProxyRequest proxyRequest = buildRequest(request);
 		copyHeaders(request, proxyRequest);
 		setForwardingHeader(request, proxyRequest);
 		return proxyRequest;
 	}
 
-	private void setForwardingHeader(GrizzlyRequest request, final ProxyRequest proxyRequest) {
+	private void setForwardingHeader(SafeRequest request, final ProxyRequest proxyRequest) {
 		proxyRequest.setHeader(X_FORWARDED_FOR, request.getRemoteAddr());
 	}
 
-	private void copyHeaders(GrizzlyRequest request, final ProxyRequest proxyRequest) {
-		Enumeration<?> headerNames = request.getHeaderNames();
-		while (headerNames.hasMoreElements()) {
-			String headerName = (String) headerNames.nextElement();
-			final String headerValue = request.getHeader(headerName);
-			if (requestHeaders.contains(headerName, headerValue)) {
-				proxyRequest.setHeader(headerName, headerValue);
-			} else {
-				LOGGER.info("Dropped request header: " + headerName + ":" + headerValue);
-			}
+	private void copyHeaders(SafeRequest request, final ProxyRequest proxyRequest) {
+		for (Entry<String, String> header : request.getHeaders().entries()) {
+			proxyRequest.setHeader(header.getKey(), header.getValue());
 		}
 	}
 
-	private ProxyRequest buildRequest(GrizzlyRequest request) {
+	private ProxyRequest buildRequest(SafeRequest request) throws BadRequestException {
 		final ProxyRequest proxyRequest = new ProxyRequest(
 			request.getMethod(),
-			request.getRequestURI(),
-			request.getStream(),
+			request.getURI().toString(),
+			request.getEntity(),
 			request.getContentLength()
 		);
 		return proxyRequest;

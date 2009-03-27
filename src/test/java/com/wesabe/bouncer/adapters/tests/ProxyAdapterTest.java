@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.tcp.http11.GrizzlyResponse;
@@ -19,13 +20,14 @@ import com.wesabe.bouncer.client.BackendService;
 import com.wesabe.bouncer.client.ProxyRequest;
 import com.wesabe.bouncer.client.ProxyRequestFactory;
 import com.wesabe.bouncer.client.ProxyResponseFactory;
+import com.wesabe.bouncer.security.SafeRequest;
 
 @RunWith(Enclosed.class)
 public class ProxyAdapterTest {
 	
 	private static class Proxy_Context {
 		protected BackendService backendService;
-		protected GrizzlyRequest request;
+		protected GrizzlyRequest grizzlyRequest;
 		@SuppressWarnings("unchecked")
 		protected GrizzlyResponse response;
 		protected HttpResponse proxyResponse;
@@ -35,12 +37,12 @@ public class ProxyAdapterTest {
 		protected ProxyAdapter adapter;
 
 		public void setup() throws Exception {
-			this.request = mock(GrizzlyRequest.class);
+			this.grizzlyRequest = mock(GrizzlyRequest.class);
 			this.response = mock(GrizzlyResponse.class);
 			this.proxyRequest = mock(ProxyRequest.class);
 			this.proxyResponse = mock(HttpResponse.class);
 			this.requestFactory = mock(ProxyRequestFactory.class);
-			when(requestFactory.buildFromGrizzlyRequest(request)).thenReturn(proxyRequest);
+			when(requestFactory.buildFromGrizzlyRequest(any(SafeRequest.class))).thenReturn(proxyRequest);
 			this.responseFactory = mock(ProxyResponseFactory.class);
 			this.backendService = mock(BackendService.class);
 			this.adapter = new ProxyAdapter(backendService, requestFactory, responseFactory);
@@ -57,21 +59,27 @@ public class ProxyAdapterTest {
 		
 		@Test
 		public void itBuildsAProxyRequestFromTheIncomingRequest() throws Exception {
-			adapter.service(request, response);
+			adapter.service(grizzlyRequest, response);
 			
-			verify(requestFactory).buildFromGrizzlyRequest(request);
+			verify(requestFactory).buildFromGrizzlyRequest(argThat(new ArgumentMatcher<SafeRequest>(){
+				@Override
+				public boolean matches(Object argument) {
+					SafeRequest req = (SafeRequest) argument;
+					return req.getRequest() == grizzlyRequest;
+				}
+			}));
 		}
 		
 		@Test
 		public void itSendsTheProxyRequestToTheBackendService() throws Exception {
-			adapter.service(request, response);
+			adapter.service(grizzlyRequest, response);
 			
 			verify(backendService).execute(proxyRequest);
 		}
 		
 		@Test
 		public void itBuildsAnOutgoingResponseFromTheProxyResponse() throws Exception {
-			adapter.service(request, response);
+			adapter.service(grizzlyRequest, response);
 			
 			verify(responseFactory).buildFromHttpResponse(proxyResponse, response);
 			verify(response).finishResponse();
@@ -89,7 +97,7 @@ public class ProxyAdapterTest {
 		
 		@Test
 		public void itRendersA502Error() throws Exception {
-			adapter.service(request, response);
+			adapter.service(grizzlyRequest, response);
 			
 			verify(response).sendError(502);
 		}
@@ -106,7 +114,7 @@ public class ProxyAdapterTest {
 		
 		@Test
 		public void itRendersA500Error() throws Exception {
-			adapter.service(request, response);
+			adapter.service(grizzlyRequest, response);
 			
 			verify(response).sendError(500);
 		}

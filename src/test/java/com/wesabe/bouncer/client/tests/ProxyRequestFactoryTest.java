@@ -16,7 +16,8 @@ import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.sun.grizzly.util.buf.ByteChunk;
 import com.wesabe.bouncer.client.ProxyRequest;
 import com.wesabe.bouncer.client.ProxyRequestFactory;
-import com.wesabe.bouncer.security.RequestHeaderSet;
+import com.wesabe.bouncer.security.BadRequestException;
+import com.wesabe.bouncer.security.SafeRequest;
 
 @RunWith(Enclosed.class)
 public class ProxyRequestFactoryTest {
@@ -42,14 +43,12 @@ public class ProxyRequestFactoryTest {
 	}
 	
 	public static class Building_A_Request_From_A_Grizzly_Request_Without_An_Entity {
-		private RequestHeaderSet headers;
 		private ProxyRequestFactory factory;
-		private GrizzlyRequest request;
+		private GrizzlyRequest grizzlyRequest;
+		private SafeRequest request;
 		
 		@Before
 		public void setup() throws Exception {
-			this.headers = new RequestHeaderSet();
-			
 			Request connectionRequest = new Request();
 			connectionRequest.method().setString("GET");
 			connectionRequest.requestURI().setString("/hello");
@@ -61,18 +60,20 @@ public class ProxyRequestFactoryTest {
 			connectionRequest.getMimeHeaders().setValue("Server").setString("ALSO FUEGO");
 			connectionRequest.getMimeHeaders().setValue("Expect").setString("SMUGGLE \n\n 4 LIFE");
 			
-			this.request = new GrizzlyRequest();
-			request.setRequest(connectionRequest);
+			this.grizzlyRequest = new GrizzlyRequest();
+			grizzlyRequest.setRequest(connectionRequest);
 			
-			this.factory = new ProxyRequestFactory(headers);
+			this.request = new SafeRequest(grizzlyRequest);
+			
+			this.factory = new ProxyRequestFactory();
 		}
 		
-		private ProxyRequest getRequest() {
+		private ProxyRequest getRequest() throws BadRequestException {
 			final ProxyRequest proxyRequest = factory.buildFromGrizzlyRequest(request);
 			return proxyRequest;
 		}
 		
-		private String getRequestHeader(String headerName) {
+		private String getRequestHeader(String headerName) throws BadRequestException {
 			return Lists.newArrayList(getRequest().getHeaders(headerName)).toString();
 		}
 		
@@ -128,14 +129,12 @@ public class ProxyRequestFactoryTest {
 	}
 	
 	public static class Building_A_Request_From_Grizzly_Request_With_An_Entity {
-		private RequestHeaderSet headers;
 		private ProxyRequestFactory factory;
-		private GrizzlyRequest request;
+		private GrizzlyRequest grizzlyRequest;
+		private SafeRequest request;
 		
 		@Before
 		public void setup() throws Exception {
-			this.headers = new RequestHeaderSet();
-			
 			Request connectionRequest = new Request();
 			connectionRequest.method().setString("POST");
 			connectionRequest.requestURI().setString("/hello");
@@ -143,10 +142,12 @@ public class ProxyRequestFactoryTest {
 			connectionRequest.setInputBuffer(new StringInputBuffer("blah blah blah"));
 			connectionRequest.setContentLength(14);
 			
-			this.request = new GrizzlyRequest();
-			request.setRequest(connectionRequest);
+			this.grizzlyRequest = new GrizzlyRequest();
+			grizzlyRequest.setRequest(connectionRequest);
 			
-			this.factory = new ProxyRequestFactory(headers);
+			this.request = new SafeRequest(grizzlyRequest);
+			
+			this.factory = new ProxyRequestFactory();
 		}
 		
 		@Test
