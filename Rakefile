@@ -24,6 +24,11 @@ def ensure_cmd(name)
   end
 end
 
+desc "Runs bouncer."
+task :run do
+  mvn_or_die("exec:java")
+end
+
 task :default => [:test]
 
 desc "Runs the tests."
