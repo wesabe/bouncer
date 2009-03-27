@@ -89,17 +89,17 @@ public class ProxyRequestFactoryTest {
 		
 		@Test
 		public void itCopiesOverAllValidRequestHeaders() throws Exception {
-			assertEquals("[Accept: text/xml]", getRequestHeader("Accept"));
+			assertEquals("[accept: text/xml]", getRequestHeader("Accept"));
 		}
 		
 		@Test
 		public void itCopiesOverAllValidGeneralHeaders() throws Exception {
-			assertEquals("[Date: Sun, 06 Nov 1994 08:49:37 GMT]", getRequestHeader("Date"));
+			assertEquals("[date: Sun, 06 Nov 1994 08:49:37 GMT]", getRequestHeader("Date"));
 		}
 		
 		@Test
 		public void itCopiesOverAllValidEntityHeaders() throws Exception {
-			assertEquals("[Content-Type: text/xml]", getRequestHeader("Content-Type"));
+			assertEquals("[content-type: text/xml]", getRequestHeader("Content-Type"));
 		}
 		
 		@Test
