@@ -157,6 +157,10 @@ public abstract class AbstractHeaderSet {
 		return headers.contains(downcasedName) && isValidHeaderValue(downcasedName, value);
 	}
 	
+	public boolean contains(String name) {
+		return headers.contains(downcase(name));
+	}
+	
 	private boolean isValidHeaderValue(String name, String value) {
 		HeaderValueValidator validator = HEADER_VALUE_VALIDATORS.get(name);
 		if (validator == null) {
