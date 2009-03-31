@@ -6,6 +6,8 @@ import java.util.Set;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
+import com.wesabe.bouncer.security.validators.DateHeaderValueValidator;
+import com.wesabe.bouncer.security.validators.HeaderValueValidator;
 
 /**
  * A set of HTTP header field names.

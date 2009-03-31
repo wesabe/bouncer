@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.security;
+package com.wesabe.bouncer.security.validators;
 
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;

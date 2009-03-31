@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.security;
+package com.wesabe.bouncer.security.validators;
 
 import com.google.common.collect.ImmutableSet;
 

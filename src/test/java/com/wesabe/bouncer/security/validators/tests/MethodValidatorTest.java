@@ -1,4 +1,4 @@
-package com.wesabe.bouncer.security.tests;
+package com.wesabe.bouncer.security.validators.tests;
 
 import static org.junit.Assert.*;
 
@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import com.wesabe.bouncer.security.MethodValidator;
+import com.wesabe.bouncer.security.validators.MethodValidator;
 
 @RunWith(Enclosed.class)
 public class MethodValidatorTest {
