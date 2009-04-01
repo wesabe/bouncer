@@ -42,7 +42,7 @@ public class ProxyRequestFactory {
 	private ProxyRequest buildRequest(SafeRequest request) throws BadRequestException {
 		final ProxyRequest proxyRequest = new ProxyRequest(
 			request.getMethod(),
-			request.getURI().toString(),
+			request.getURI(),
 			request.getEntity(),
 			request.getContentLength()
 		);

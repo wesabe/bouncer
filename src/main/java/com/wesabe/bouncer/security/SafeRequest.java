@@ -1,10 +1,6 @@
 package com.wesabe.bouncer.security;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Map;
@@ -13,6 +9,8 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.sun.grizzly.tcp.http11.GrizzlyRequest;
+import com.wesabe.bouncer.security.normalizers.MalformedValueException;
+import com.wesabe.bouncer.security.normalizers.UriNormalizer;
 import com.wesabe.bouncer.security.validators.DateHeaderValueValidator;
 import com.wesabe.bouncer.security.validators.HeaderValueValidator;
 import com.wesabe.bouncer.security.validators.MethodValidator;
@@ -29,8 +27,6 @@ import com.wesabe.bouncer.util.CaseInsensitiveMultimap.Builder;
  * @author coda
  */
 public class SafeRequest {
-	private static final String DEFAULT_CHARSET = "UTF-8";
-	private static final int MAX_DECODE_DEPTH = 3;
 	private static final Map<String, Validator<String>> HEADER_VALIDATORS = MapWithDefault.of(
 		ImmutableMap.of(
 			"date", (Validator<String>) new DateHeaderValueValidator(),
@@ -40,6 +36,7 @@ public class SafeRequest {
 		new HeaderValueValidator()
 	);
 	private static final MethodValidator METHOD_VALIDATOR = new MethodValidator();
+	private static final UriNormalizer URI_NORMALIZER = new UriNormalizer();
 	private static final Logger LOGGER = Logger.getLogger(SafeRequest.class.getCanonicalName());
 	private final GrizzlyRequest request;
 	private final RequestHeaderSet headerSet;
@@ -60,15 +57,10 @@ public class SafeRequest {
 	 * @return the request URI
 	 * @throws BadRequestException if the request's URI is invalid
 	 */
-	public URI getURI() throws BadRequestException {
+	public String getURI() throws BadRequestException {
 		try {
-			final URI uri = new URI(decodeURI(request.getRequestURI()));
-			if (uri.getHost() != null) {
-				throw new URISyntaxException(uri.toString(), "must not have an associated host");
-			}
-			
-			return uri;
-		} catch (URISyntaxException e) {
+			return URI_NORMALIZER.normalize(request.getRequestURI());
+		} catch (MalformedValueException e) {
 			throw new BadRequestException(request, e);
 		}
 	}
@@ -147,23 +139,6 @@ public class SafeRequest {
 		return request.getContentLength();
 	}
 	
-	private String decodeURI(String encodedUri) throws URISyntaxException {
-		try {
-			String uri = encodedUri;
-			for (int i = MAX_DECODE_DEPTH; i > 0; i--) {
-				String decodedUri = URLDecoder.decode(uri, DEFAULT_CHARSET);
-				if (uri.equals(decodedUri)) {
-					return uri;
-				}
-				uri = decodedUri;
-			}
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
-		
-		throw new URISyntaxException(encodedUri, "was encoded more than " + MAX_DECODE_DEPTH + " times");
-	}
-
 	public GrizzlyRequest getRequest() {
 		return request;
 	}

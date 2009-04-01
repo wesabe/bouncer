@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.InputStream;
-import java.net.URI;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,7 +72,7 @@ public class SafeRequestTest {
 		@Test
 		public void itReturnsTheValidURI() throws Exception {
 			SafeRequest safeRequest = new SafeRequest(request);
-			assertEquals(URI.create("/dingo"), safeRequest.getURI());
+			assertEquals("/dingo", safeRequest.getURI());
 		}
 	}
 	
@@ -89,11 +88,11 @@ public class SafeRequestTest {
 		@Test
 		public void itReturnsTheFullyDecodedURI() throws Exception {
 			SafeRequest safeRequest = new SafeRequest(request);
-			assertEquals(URI.create("/../"), safeRequest.getURI());
+			assertEquals("/..%2F", safeRequest.getURI());
 		}
 	}
 	
-	public static class Accepting_DoubleEncoded_URIs {
+	public static class Rejecting_Double_Encoded_URIs {
 		private GrizzlyRequest request;
 		
 		@Before
@@ -105,7 +104,12 @@ public class SafeRequestTest {
 		@Test
 		public void itReturnsTheFullyDecodedURI() throws Exception {
 			SafeRequest safeRequest = new SafeRequest(request);
-			assertEquals(URI.create("/../"), safeRequest.getURI());
+			try {
+				safeRequest.getURI();
+				fail("should have rejected the invalid URI");
+			} catch (BadRequestException e) {
+				assertSame(request, e.getBadRequest());
+			}
 		}
 	}
 	
