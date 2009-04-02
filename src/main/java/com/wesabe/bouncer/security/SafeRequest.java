@@ -38,8 +38,9 @@ public class SafeRequest {
 	private static final MethodValidator METHOD_VALIDATOR = new MethodValidator();
 	private static final UriNormalizer URI_NORMALIZER = new UriNormalizer();
 	private static final Logger LOGGER = Logger.getLogger(SafeRequest.class.getCanonicalName());
+	private static final RequestHeaderSet VALID_HEADERS = new RequestHeaderSet();
 	private final GrizzlyRequest request;
-	private final RequestHeaderSet headerSet;
+	
 	
 	/**
 	 * Creates a new {@link SafeRequest} with a backing {@link GrizzlyRequest}.
@@ -48,7 +49,6 @@ public class SafeRequest {
 	 */
 	public SafeRequest(GrizzlyRequest request) {
 		this.request = request;
-		this.headerSet = new RequestHeaderSet();
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class SafeRequest {
 			final String headerName = (String) headerNames.nextElement();
 			final String normalizedHeaderName = headerName.toLowerCase(Locale.US);
 			
-			if (headerSet.contains(headerName)) {
+			if (VALID_HEADERS.contains(headerName)) {
 				final Enumeration<?> headerValues = request.getHeaders(headerName);
 				while (headerValues.hasMoreElements()) {
 					final String headerValue = (String) headerValues.nextElement();
