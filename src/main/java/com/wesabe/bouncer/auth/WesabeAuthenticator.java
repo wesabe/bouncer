@@ -66,13 +66,20 @@ public class WesabeAuthenticator implements Authenticator {
 	private static final String USERNAME_FIELD = "username";
 	private static final String SALT_FIELD = "salt";
 	private static final String PASSWORD_HASH_FIELD = "password_hash";
+	private static final String EMAIL_FIELD = "email";
+	private static final String LAST_WEB_LOGIN_FIELD = "last_web_login";
 	private static final String USER_SELECT_SQL = "SELECT " +
 													USER_ID_FIELD + ", " +
 													USERNAME_FIELD + ", " +
 													SALT_FIELD + ", " +
 													PASSWORD_HASH_FIELD + " " +
 												  "FROM users WHERE " +
-												  	USERNAME_FIELD + " = ?";
+												  	"(" +
+												  		USERNAME_FIELD + " = ? OR " +
+												  		EMAIL_FIELD + " = ?" +
+												  	") AND status IN (0,6) " +
+												  "ORDER BY " + LAST_WEB_LOGIN_FIELD + " DESC " +
+												  "LIMIT 1";
 	private static final String HASH_ALGORITHM = "SHA-256";
 	private final DataSource dataSource;
 	
@@ -137,6 +144,7 @@ public class WesabeAuthenticator implements Authenticator {
 			throws SQLException {
 		PreparedStatement statement = connection.prepareStatement(USER_SELECT_SQL);
 		statement.setString(1, header.getUsername());
+		statement.setString(2, header.getUsername());
 
 		ResultSet resultSet = statement.executeQuery();
 		return resultSet;
