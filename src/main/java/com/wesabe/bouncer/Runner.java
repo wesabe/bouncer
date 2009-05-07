@@ -46,7 +46,9 @@ public class Runner {
 		
 		final Authenticator authenticator = new WesabeAuthenticator(dataSource);
 		
-		context.addFilter(new FilterHolder(new AuthenticationFilter(authenticator)), "/*", 0);
+		context.addFilter(new FilterHolder(
+			new AuthenticationFilter(authenticator, config.getAuthenticationRealm(), config.getAuthenticationErrorMessage())
+		), "/*", 0);
 		
 		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet());
 		context.addServlet(proxyHolder, "/*");

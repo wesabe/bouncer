@@ -20,9 +20,13 @@ import com.wesabe.bouncer.auth.Authenticator;
 
 public class AuthenticationFilter implements Filter {
 	private final Authenticator authenticator;
+	private final String challenge;
+	private final String errorMessage;
 	
-	public AuthenticationFilter(Authenticator authenticator) {
+	public AuthenticationFilter(Authenticator authenticator, String realm, String errorMessage) {
 		this.authenticator = authenticator;
+		this.challenge = "Basic realm=\"" + realm + "\"";
+		this.errorMessage = errorMessage;
 	}
 	
 	
@@ -43,8 +47,9 @@ public class AuthenticationFilter implements Filter {
 		} else {
 			final Response response = (Response) resp;
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setHeader("WWW-Authenticate", challenge);
 			final PrintWriter writer = resp.getWriter();
-			writer.println("Go away.");
+			writer.println(errorMessage);
 			writer.close();
 		}
 	}
