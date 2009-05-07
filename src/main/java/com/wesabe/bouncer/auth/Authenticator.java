@@ -2,7 +2,7 @@ package com.wesabe.bouncer.auth;
 
 import java.security.Principal;
 
-import com.sun.grizzly.tcp.http11.GrizzlyRequest;
+import org.mortbay.jetty.Request;
 
 /**
  * An authenticator of incoming requests.
@@ -18,5 +18,5 @@ public interface Authenticator {
 	 * @param request a potentially authenticated request
 	 * @return the {@link Principal} associated with {@code request}
 	 */
-	public abstract Principal authenticate(GrizzlyRequest request);
+	public abstract Principal authenticate(Request request);
 }

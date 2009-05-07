@@ -10,9 +10,9 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import com.sun.grizzly.tcp.http11.GrizzlyRequest;
-import com.sun.grizzly.util.buf.Base64Utils;
-import com.sun.grizzly.util.buf.HexUtils;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
+import org.mortbay.jetty.Request;
 
 /**
  * An {@link Authenticator} which, given a {@link DataSource} for the PFC
@@ -29,18 +29,14 @@ public class WesabeAuthenticator implements Authenticator {
 		
 		public static AuthHeader parse(String authHeader) {
 			if (authHeader != null && authHeader.startsWith(BASIC_AUTHENTICATION_PREFIX)) {
-				final char[] encodedAuthHeader = authHeader.substring(BASIC_AUTHENTICATION_PREFIX.length(), authHeader.length()).toCharArray();
-				byte[] decodedAuthHeader = Base64Utils.decode(encodedAuthHeader);
-				if (decodedAuthHeader != null) {
-					final String creds = new String(decodedAuthHeader);
+				final String encodedCreds = authHeader.substring(BASIC_AUTHENTICATION_PREFIX.length(), authHeader.length());
+				final String creds = new String(Base64.decodeBase64(encodedCreds.getBytes()));
+				int separator = creds.indexOf(':');
+				if (separator > 0) {
+					final String username = creds.substring(0, separator);
+					final String password = creds.substring(separator + 1);
 					
-					int separator = creds.indexOf(':');
-					if (separator > 0) {
-						final String username = creds.substring(0, separator);
-						final String password = creds.substring(separator + 1);
-						
-						return new AuthHeader(username, password);
-					}
+					return new AuthHeader(username, password);
 				}
 			}
 			
@@ -87,11 +83,8 @@ public class WesabeAuthenticator implements Authenticator {
 		this.dataSource = dataSource;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.wesabe.bouncer.auth.Authenticator#authenticate(com.sun.grizzly.tcp.http11.GrizzlyRequest)
-	 */
 	@Override
-	public Principal authenticate(GrizzlyRequest request) {
+	public Principal authenticate(Request request) {
 		final AuthHeader header = AuthHeader.parse(request.getHeader(AUTHORIZATION_HEADER));
 		if (header != null) {
 			try {
@@ -158,6 +151,6 @@ public class WesabeAuthenticator implements Authenticator {
 		builder.append(a);
 		builder.append(b);
 		
-		return HexUtils.convert(sha512.digest(builder.toString().getBytes()));
+		return new String(Hex.encodeHex(sha512.digest(builder.toString().getBytes())));
 	}
 }

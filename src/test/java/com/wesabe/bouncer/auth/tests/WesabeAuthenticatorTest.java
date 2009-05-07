@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
+import org.mortbay.jetty.Request;
 
-import com.sun.grizzly.tcp.http11.GrizzlyRequest;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.auth.WesabeCredentials;
 
@@ -27,7 +27,7 @@ public class WesabeAuthenticatorTest {
 		protected PreparedStatement statement;
 		protected ResultSet resultSet;
 		protected WesabeAuthenticator authenticator;
-		protected GrizzlyRequest request;
+		protected Request request;
 		
 		public void setup() throws Exception {
 			this.resultSet = mock(ResultSet.class);
@@ -41,7 +41,7 @@ public class WesabeAuthenticatorTest {
 			this.dataSource = mock(DataSource.class);
 			when(dataSource.getConnection()).thenReturn(connection);
 			
-			this.request = mock(GrizzlyRequest.class);
+			this.request = mock(Request.class);
 			
 			this.authenticator = new WesabeAuthenticator(dataSource);
 		}
