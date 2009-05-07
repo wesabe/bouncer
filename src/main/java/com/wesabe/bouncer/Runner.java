@@ -35,7 +35,7 @@ public class Runner {
 		
 		PooledDataSource dataSource = (PooledDataSource) DataSources.pooledDataSource(
 				DataSources.unpooledDataSource(
-						config.getJdbcUsername(),
+						config.getJdbcUri().toASCIIString(),
 						config.getJdbcUsername(),
 						config.getJdbcPassword()
 				),
