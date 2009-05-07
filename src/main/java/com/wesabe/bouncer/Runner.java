@@ -25,6 +25,9 @@ public class Runner {
 		final int port = Integer.valueOf(args[1]);
 		
 		final Server server = new Server(port);
+		server.setGracefulShutdown(5000);
+		server.setSendServerVersion(false);
+		server.setStopAtShutdown(true);
 		
 		final Context context = new Context();
 		
