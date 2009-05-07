@@ -9,6 +9,12 @@
 	<properties>
 		<jetty-version>6.1.17</jetty-version>
 	</properties>
+	<repositories>
+		<repository>
+			<id>wesabe-internal</id>
+			<url>http://repo.core/maven2</url>
+		</repository>
+	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -62,6 +68,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-jdk14</artifactId>
 			<version>1.5.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.wesabe</groupId>
+			<artifactId>servlet-safety</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 	<build>

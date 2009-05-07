@@ -10,7 +10,9 @@ import com.mchange.v2.c3p0.DataSources;
 import com.mchange.v2.c3p0.PooledDataSource;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
+import com.wesabe.bouncer.servlets.AuthenticationFilter;
 import com.wesabe.bouncer.servlets.ProxyServlet;
+import com.wesabe.servlet.SafeFilter;
 
 public class Runner {
 	public static void main(String[] args) throws Exception {
@@ -44,8 +46,12 @@ public class Runner {
 		
 		final Authenticator authenticator = new WesabeAuthenticator(dataSource);
 		
-		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(authenticator));
+		context.addFilter(new FilterHolder(new AuthenticationFilter(authenticator)), "/*", 0);
+		
+		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet());
 		context.addServlet(proxyHolder, "/*");
+		
+		context.addFilter(SafeFilter.class, "/*", 0);
 		
 		server.addHandler(context);
 		
