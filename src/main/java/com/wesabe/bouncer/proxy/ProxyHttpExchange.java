@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.io.Buffer;
 import org.mortbay.jetty.client.HttpExchange;
-import org.mortbay.util.ajax.Continuation;
 
 import com.wesabe.servlet.normalizers.util.CaseInsensitiveSet;
 
@@ -113,14 +112,11 @@ public class ProxyHttpExchange extends HttpExchange {
 	private final URI backendUri;
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
-	private final Continuation continuation;
 	
-	public ProxyHttpExchange(URI backend, HttpServletRequest request, HttpServletResponse response,
-			Continuation continuation) {
+	public ProxyHttpExchange(URI backend, HttpServletRequest request, HttpServletResponse response) {
 		this.backendUri = backend;
 		this.request = request;
 		this.response = response;
-		this.continuation = continuation;
 		buildFromRequest(request);
 	}
 	
@@ -177,11 +173,6 @@ public class ProxyHttpExchange extends HttpExchange {
 	}
 
 	@Override
-	protected void onResponseComplete() throws IOException {
-		continuation.resume();
-	}
-
-	@Override
 	protected void onResponseContent(Buffer content) throws IOException {
 		content.writeTo(response.getOutputStream());
 	}
@@ -193,13 +184,17 @@ public class ProxyHttpExchange extends HttpExchange {
 
 	@Override
 	protected void onResponseHeader(Buffer nameBuffer, Buffer valueBuffer) throws IOException {
-		final String name = nameBuffer.toString();
-		if (!UNPROXYABLE_HEADERS.contains(name)
-				&& (GENERAL_HEADERS.contains(name)
-						|| ENTITY_HEADERS.contains(name)
-						|| RESPONSE_HEADERS.contains(name))) {
-			if (valueBuffer != null) {
-				response.addHeader(name, valueBuffer.toString());
+		if (nameBuffer != null) {
+			final String name = nameBuffer.toString();
+			if (name != null) {
+				if (!UNPROXYABLE_HEADERS.contains(name)
+						&& (GENERAL_HEADERS.contains(name)
+								|| ENTITY_HEADERS.contains(name)
+								|| RESPONSE_HEADERS.contains(name))) {
+					if (valueBuffer != null) {
+						response.addHeader(name, valueBuffer.toString());
+					}
+				}
 			}
 		}
 	}

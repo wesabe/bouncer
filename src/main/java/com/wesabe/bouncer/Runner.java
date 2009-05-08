@@ -1,6 +1,7 @@
 package com.wesabe.bouncer;
 
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.client.HttpClient;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -53,7 +54,9 @@ public class Runner {
 			new AuthenticationFilter(authenticator, config.getAuthenticationRealm(), config.getAuthenticationErrorMessage())
 		), "/*", 0);
 		
-		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet());
+		final HttpClient client = new HttpClient();
+		
+		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(config.getBackendUri(), client));
 		context.addServlet(proxyHolder, "/*");
 		
 		context.addFilter(SafeFilter.class, "/*", 0);

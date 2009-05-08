@@ -24,7 +24,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mortbay.io.Buffer;
 import org.mortbay.io.ByteArrayBuffer;
-import org.mortbay.util.ajax.Continuation;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +36,6 @@ public class ProxyHttpExchangeTest {
 		private URI backend;
 		private HttpServletRequest request;
 		private HttpServletResponse response;
-		private Continuation continuation;
 		private ServletInputStream inputStream;
 		private WesabeCredentials principal;
 		private final Map<String, String> requestHeaders = ImmutableMap.of(
@@ -72,11 +70,10 @@ public class ProxyHttpExchangeTest {
 			when(request.getUserPrincipal()).thenReturn(principal);
 			
 			this.response = mock(HttpServletResponse.class);
-			this.continuation = mock(Continuation.class);
 		}
 		
 		private ProxyHttpExchange exchange() {
-			return new ProxyHttpExchange(backend, request, response, continuation);
+			return new ProxyHttpExchange(backend, request, response);
 		}
 		
 		@Test
@@ -189,7 +186,6 @@ public class ProxyHttpExchangeTest {
 		private URI backend;
 		private HttpServletRequest request;
 		private HttpServletResponse response;
-		private Continuation continuation;
 		private ServletOutputStream outputStream;
 		private ProxyHttpExchange exchange;
 		
@@ -205,8 +201,7 @@ public class ProxyHttpExchangeTest {
 			this.outputStream = mock(ServletOutputStream.class);
 			this.response = mock(HttpServletResponse.class);
 			when(response.getOutputStream()).thenReturn(outputStream);
-			this.continuation = mock(Continuation.class);
-			this.exchange = new ProxyHttpExchange(backend, request, response, continuation);
+			this.exchange = new ProxyHttpExchange(backend, request, response);
 		}
 		
 		@Test
@@ -258,13 +253,6 @@ public class ProxyHttpExchangeTest {
 			exchange.getEventListener().onResponseHeader(new ByteArrayBuffer("Age"), null);
 			
 			verify(response, never()).addHeader("Age", null);
-		}
-		
-		@Test
-		public void itResumesTheContinuationWhenTheResponseIsComplete() throws Exception {
-			exchange.getEventListener().onResponseComplete();
-			
-			verify(continuation).resume();
 		}
 	}
 }

@@ -1,32 +1,62 @@
 package com.wesabe.bouncer.servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.net.URI;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.proxy.AsyncProxyServlet;
+import org.mortbay.jetty.client.HttpClient;
+
+import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 
 public class ProxyServlet extends HttpServlet {
 	private static final long serialVersionUID = -3276400775243866667L;
-
+	private final URI backendUri;
+	private final HttpClient httpClient;
+	
+	public ProxyServlet(URI backendUri, HttpClient httpClient) {
+		this.backendUri = backendUri;
+		this.httpClient = httpClient;
+	}
+	
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
+	public void init() throws ServletException {
+		try {
+			httpClient.start();
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}
+	}
+	
+	@Override
+	public void destroy() {
+		try {
+			httpClient.stop();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+	
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException,
 			IOException {
-		
-		AsyncProxyServlet.Transparent.class.getCanonicalName();
-		
-		// 0. set Wesabe auth header
-		// 1. turn request into proxy request
-		// 2. send proxy request to backend
-		// 3. turn proxy response into response
-		
-		resp.setStatus(HttpServletResponse.SC_OK);
-		final PrintWriter writer = resp.getWriter();
-		writer.println("Hello, world.");
-		writer.close();
+		final ProxyHttpExchange exchange = new ProxyHttpExchange(backendUri, req, resp);
+		httpClient.send(exchange);
+		try {
+			exchange.waitForDone();
+		} catch (InterruptedException e) {
+			throw new ServletException(e);
+		}
+	}
+
+	public URI getBackendUri() {
+		return backendUri;
+	}
+
+	public HttpClient getHttpClient() {
+		return httpClient;
 	}
 }
