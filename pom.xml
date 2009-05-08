@@ -103,7 +103,7 @@
 					</descriptorRefs>
 					<archive>
 						<manifest>
-							<!--<mainClass>com.wesabe.bouncer.Server</mainClass>-->
+							<mainClass>com.wesabe.bouncer.Runner</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
