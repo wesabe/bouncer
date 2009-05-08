@@ -144,7 +144,19 @@ public class WesabeAuthenticatorTest {
 			
 			InOrder inOrder = inOrder(dataSource, connection, statement, resultSet);
 			inOrder.verify(dataSource).getConnection();
-			inOrder.verify(connection).prepareStatement("SELECT id, username, salt, password_hash FROM users WHERE (username = ? OR email = ?) AND status IN (0,6) ORDER BY last_web_login DESC LIMIT 1");
+			inOrder.verify(connection).prepareStatement(
+				"SELECT * FROM (" +
+						"SELECT id, username, salt, password_hash, last_web_login " +
+						"FROM users " +
+						"WHERE (username = ?) AND status IN (0, 6) " +
+					"UNION " +
+						"SELECT id, username, salt, password_hash, last_web_login " +
+						"FROM users " +
+						"WHERE (email = ?) AND status IN (0, 6)" +
+				") AS t " +
+				"ORDER BY last_web_login DESC " +
+				"LIMIT 1"
+			);
 			inOrder.verify(statement).setString(1, "dingo");
 			inOrder.verify(statement).setString(2, "dingo");
 			inOrder.verify(statement).executeQuery();
