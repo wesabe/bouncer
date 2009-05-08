@@ -14,6 +14,7 @@ import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
+import com.wesabe.bouncer.servlets.ErrorFilter;
 import com.wesabe.bouncer.servlets.ProxyServlet;
 import com.wesabe.servlet.SafeFilter;
 
@@ -34,6 +35,8 @@ public class Runner {
 		
 		final Context context = new Context();
 		context.addFilter(SafeFilter.class, "/*", 0);
+		final FilterHolder errorHolder = new FilterHolder(new ErrorFilter("Exception Notifier <support@wesabe.com>", "coda@wesabe.com", "bouncer"));
+		context.addFilter(errorHolder, "/*", 0);
 		
 		if (config.isHttpCompressionEnabled()) {
 			final FilterHolder gzipHolder = new FilterHolder(GzipFilter.class);
