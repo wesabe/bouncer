@@ -18,6 +18,7 @@ import org.mortbay.jetty.Response;
 
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
+import com.wesabe.servlet.SafeRequest;
 
 @RunWith(Enclosed.class)
 public class AuthenticationFilterTest {
@@ -44,7 +45,7 @@ public class AuthenticationFilterTest {
 		public void itSetsTheUserPrincipalAndPassesTheRequestOn() throws Exception {
 			when(authenticator.authenticate(request)).thenReturn(principal);
 			
-			filter.doFilter(request, response, chain);
+			filter.doFilter(new SafeRequest(request), response, chain);
 			
 			InOrder inOrder = inOrder(authenticator, request, chain);
 			inOrder.verify(authenticator).authenticate(request);
@@ -81,7 +82,7 @@ public class AuthenticationFilterTest {
 		public void itReturnsABasicAuthChallenge() throws Exception {
 			when(authenticator.authenticate(request)).thenReturn(null);
 			
-			filter.doFilter(request, response, chain);
+			filter.doFilter(new SafeRequest(request), response, chain);
 			
 			InOrder inOrder = inOrder(authenticator, response, writer);
 			inOrder.verify(authenticator).authenticate(request);

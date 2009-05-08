@@ -33,6 +33,7 @@ public class Runner {
 		server.setStopAtShutdown(true);
 		
 		final Context context = new Context();
+		context.addFilter(SafeFilter.class, "/*", 0);
 		
 		if (config.isHttpCompressionEnabled()) {
 			final FilterHolder gzipHolder = new FilterHolder(GzipFilter.class);
@@ -62,8 +63,6 @@ public class Runner {
 		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
 		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
 		context.addServlet(proxyHolder, "/*");
-		
-		context.addFilter(SafeFilter.class, "/*", 0);
 		
 		server.addHandler(context);
 		

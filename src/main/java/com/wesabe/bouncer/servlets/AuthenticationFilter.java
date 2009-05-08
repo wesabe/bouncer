@@ -17,6 +17,7 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 
 import com.wesabe.bouncer.auth.Authenticator;
+import com.wesabe.servlet.SafeRequest;
 
 public class AuthenticationFilter implements Filter {
 	private final Authenticator authenticator;
@@ -38,7 +39,8 @@ public class AuthenticationFilter implements Filter {
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
 			throws IOException, ServletException {
-		final Request request = (Request) req;
+		final SafeRequest safeRequest = (SafeRequest) req;
+		final Request request = (Request) safeRequest.getRequest();
 		final Principal principal = authenticator.authenticate(request);
 		if (principal != null) {
 			request.setUserPrincipal(principal);
