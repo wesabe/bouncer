@@ -59,6 +59,7 @@ public class WesabeAuthenticator implements Authenticator {
 	
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String USER_ID_FIELD = "id";
+	private static final String USERNAME_FIELD = "username";
 	private static final String SALT_FIELD = "salt";
 	private static final String PASSWORD_HASH_FIELD = "password_hash";
 	private static final String USER_SELECT_SQL =
@@ -113,6 +114,7 @@ public class WesabeAuthenticator implements Authenticator {
 			throws SQLException, NoSuchAlgorithmException {
 		final String salt = resultSet.getString(SALT_FIELD);
 		final int userId = resultSet.getInt(USER_ID_FIELD);
+		final String username = resultSet.getString(USERNAME_FIELD);
 		final String passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
 		
 		final String candidatePasswordHash = concatenateAndHash(salt, header.getPassword());
@@ -121,7 +123,7 @@ public class WesabeAuthenticator implements Authenticator {
 			return new WesabeCredentials(
 					userId,
 					concatenateAndHash(
-							concatenateAndHash(header.getUsername(), header.getPassword()),
+							concatenateAndHash(username, header.getPassword()),
 							header.getPassword()
 					)
 			);

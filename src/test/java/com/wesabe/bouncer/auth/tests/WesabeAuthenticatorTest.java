@@ -196,6 +196,7 @@ public class WesabeAuthenticatorTest {
 			when(resultSet.first()).thenReturn(true);
 			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
 			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("username")).thenReturn("FrankyDoo!");
 			when(resultSet.getString("password_hash")).thenReturn("6b56e2021b411940d70b0208693e51bab97cf93c03dc92d7a810f21e1b6faf7f");
 		};
 		
@@ -209,7 +210,7 @@ public class WesabeAuthenticatorTest {
 			WesabeCredentials creds = (WesabeCredentials) authenticator.authenticate(request);
 			
 			assertEquals(200, creds.getUserId());
-			assertEquals("36d990582959b77f0ec117fa5a703bea8df12ea744b8208a4e13de4f5ec088a1", creds.getAccountKey());
+			assertEquals("33aef8191baba4c7b836fa3f79a11a9c50a90b73e7bf381d5487aab3946b39ed", creds.getAccountKey());
 		}
 	}
 }
