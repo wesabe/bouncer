@@ -6,11 +6,13 @@ import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.servlet.GzipFilter;
+import org.mortbay.thread.QueuedThreadPool;
 
 import com.mchange.v2.c3p0.DataSources;
 import com.mchange.v2.c3p0.PooledDataSource;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
+import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
 import com.wesabe.bouncer.servlets.ProxyServlet;
 import com.wesabe.servlet.SafeFilter;
@@ -55,8 +57,10 @@ public class Runner {
 		), "/*", 0);
 		
 		final HttpClient client = new HttpClient();
-		
-		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(config.getBackendUri(), client));
+		client.setThreadPool(new QueuedThreadPool(20));
+		client.setConnectorType(HttpClient.CONNECTOR_SOCKET);
+		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
+		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
 		context.addServlet(proxyHolder, "/*");
 		
 		context.addFilter(SafeFilter.class, "/*", 0);
