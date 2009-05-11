@@ -140,14 +140,14 @@ public class ProxyHttpExchange extends HttpExchange {
 
 		final Enumeration<?> names = request.getHeaderNames();
 		while (names.hasMoreElements()) {
-			String name = (String) names.nextElement();
+			final String name = (String) names.nextElement();
 			if (!UNPROXYABLE_HEADERS.contains(name)
 					&& (GENERAL_HEADERS.contains(name)
 							|| ENTITY_HEADERS.contains(name)
 							|| REQUEST_HEADERS.contains(name))) {
 				final Enumeration<?> values = request.getHeaders(name);
 				while (values.hasMoreElements()) {
-					String value = (String) values.nextElement();
+					final String value = (String) values.nextElement();
 					addRequestHeader(name, value);
 				}
 			}
@@ -156,7 +156,7 @@ public class ProxyHttpExchange extends HttpExchange {
 		if (request.getContentType() != null) {
 			try {
 				setRequestContentSource(request.getInputStream());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}

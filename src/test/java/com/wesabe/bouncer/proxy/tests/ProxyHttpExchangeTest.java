@@ -176,7 +176,7 @@ public class ProxyHttpExchangeTest {
 			try {
 				exchange();
 				fail("should have thrown a RuntimeException but didn't");
-			} catch (RuntimeException e) {
+			} catch (final RuntimeException e) {
 				assertThat(e.getCause(), is(IOException.class));
 			}
 		}
