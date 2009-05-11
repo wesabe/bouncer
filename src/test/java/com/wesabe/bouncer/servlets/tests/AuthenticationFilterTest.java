@@ -7,6 +7,7 @@ import java.security.Principal;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +58,7 @@ public class AuthenticationFilterTest {
 	
 	public static class Filtering_An_Unauthenticated_Request {
 		private Request request;
-		private Response response;
+		private HttpServletResponse response;
 		private FilterChain chain;
 		private Authenticator authenticator;
 		private AuthenticationFilter filter;
@@ -72,7 +73,7 @@ public class AuthenticationFilterTest {
 			
 			this.writer = mock(PrintWriter.class);
 			
-			this.response = mock(Response.class);
+			this.response = mock(HttpServletResponse.class);
 			when(response.getWriter()).thenReturn(writer);
 			
 			this.chain = mock(FilterChain.class);

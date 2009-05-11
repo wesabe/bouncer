@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Response;
 
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.servlet.SafeRequest;
@@ -47,7 +46,7 @@ public class AuthenticationFilter implements Filter {
 			request.setAuthType(HttpServletRequest.BASIC_AUTH);
 			chain.doFilter(request, resp);
 		} else {
-			final Response response = (Response) resp;
+			final HttpServletResponse response = (HttpServletResponse) resp;
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setHeader("WWW-Authenticate", challenge);
 			final PrintWriter writer = resp.getWriter();
