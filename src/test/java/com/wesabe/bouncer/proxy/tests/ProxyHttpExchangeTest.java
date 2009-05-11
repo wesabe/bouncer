@@ -28,6 +28,7 @@ import org.mortbay.io.ByteArrayBuffer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wesabe.bouncer.auth.WesabeCredentials;
+import com.wesabe.bouncer.proxy.BackendFailureException;
 import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 
 @RunWith(Enclosed.class)
@@ -253,6 +254,17 @@ public class ProxyHttpExchangeTest {
 			exchange.getEventListener().onResponseHeader(new ByteArrayBuffer("Age"), null);
 			
 			verify(response, never()).addHeader("Age", null);
+		}
+		
+		@Test
+		public void itThrowsABackendFailureExceptionIfTheConnectionFails() throws Exception {
+			final Throwable cause = new Throwable();
+			try {
+				exchange.getEventListener().onConnectionFailed(cause);
+				fail("should have thrown a BackendFailureException but didn't");
+			} catch (final BackendFailureException e) {
+				assertThat(e.getCause(), is(cause));
+			}
 		}
 	}
 }

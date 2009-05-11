@@ -171,6 +171,11 @@ public class ProxyHttpExchange extends HttpExchange {
 		}
 		return backendUri.resolve(urlBuilder.toString()).toASCIIString();
 	}
+	
+	@Override
+	protected void onConnectionFailed(Throwable ex) {
+		throw new BackendFailureException(this, ex);
+	}
 
 	@Override
 	protected void onResponseContent(Buffer content) throws IOException {
