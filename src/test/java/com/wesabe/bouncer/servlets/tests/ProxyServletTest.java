@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,13 +29,20 @@ import com.wesabe.bouncer.servlets.ProxyServlet;
 public class ProxyServletTest {
 	private static class FakeHttpClient extends HttpClient {
 		private final List<HttpExchange> exchanges = Lists.newLinkedList();
+		private boolean explode = false;
 		
 		@Override
 		protected void doStart() throws Exception {
+			if (explode) {
+				throw new IOException("DUDE WHAT");
+			}
 		}
 		
 		@Override
 		protected void doStop() throws Exception {
+			if (explode) {
+				throw new IOException("OH NOES");
+			}
 		}
 		
 		@Override
@@ -44,6 +52,10 @@ public class ProxyServletTest {
 		
 		public List<HttpExchange> getExchanges() {
 			return exchanges;
+		}
+		
+		public void setExplode(boolean explode) {
+			this.explode = explode;
 		}
 	}
 	
@@ -91,6 +103,17 @@ public class ProxyServletTest {
 			
 			assertThat(httpClient.isStarted(), is(true));
 		}
+		
+		@Test
+		public void itThrowsAServletExceptionIfTheClientCannotBeStarted() throws Exception {
+			httpClient.setExplode(true);
+			try {
+				servlet.init();
+				fail("should have thrown a ServletException but didn't");
+			} catch (final ServletException e) {
+				assertThat(e.getMessage(), is("java.io.IOException: DUDE WHAT"));
+			}
+		}
 	}
 	
 	public static class Destroying extends Context {
@@ -106,6 +129,17 @@ public class ProxyServletTest {
 			servlet.destroy();
 			
 			assertThat(httpClient.isStopped(), is(true));
+		}
+		
+		@Test
+		public void itThrowsARuntimeExceptionIfTheClientCannotBeStarted() throws Exception {
+			httpClient.setExplode(true);
+			try {
+				servlet.destroy();
+				fail("should have thrown a ServletException but didn't");
+			} catch (final Throwable e) {
+				assertThat(e.getMessage(), is("java.io.IOException: OH NOES"));
+			}
 		}
 	}
 	
@@ -133,6 +167,18 @@ public class ProxyServletTest {
 			assertThat((ProxyHttpExchange) httpClient.getExchanges().get(0), is(this.exchange));
 			
 			verify(exchange).waitForDone();
+		}
+		
+		@Test
+		public void itWrapsAnyThrownExceptionsInServletExceptions() throws Exception {
+			when(exchange.waitForDone()).thenThrow(new InterruptedException("AUGH"));
+			
+			try {
+				servlet.service(request, response);
+				fail("should have thrown a ServletException but didn't");
+			} catch (final ServletException e) {
+				assertThat(e.getMessage(), is("java.lang.InterruptedException: AUGH"));
+			}
 		}
 	}
 }
