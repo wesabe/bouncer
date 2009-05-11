@@ -108,6 +108,17 @@
 					</archive>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<configuration>
+					<mainClass>com.wesabe.bouncer.Runner</mainClass>
+					<arguments>
+						<argument>development.properties</argument>
+						<argument>8081</argument>
+					</arguments>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
