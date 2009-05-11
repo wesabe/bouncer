@@ -1,5 +1,6 @@
 package com.wesabe.bouncer.tests;
 
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
 import java.net.URI;
@@ -19,7 +20,7 @@ public class ConfigurationTest {
 		
 		@Before
 		public void setup() throws Exception {
-			String configLocation = ClassLoader.getSystemResource("sample-config.properties").getFile();
+			final String configLocation = ClassLoader.getSystemResource("sample-config.properties").getFile();
 			
 			this.configuration = new Configuration(configLocation);
 		}
@@ -81,9 +82,14 @@ public class ConfigurationTest {
 		
 		@Test
 		public void itHasC3P0Properties() throws Exception {
-			Properties c3p0Properties = configuration.getC3P0Properties();
+			final Properties c3p0Properties = configuration.getC3P0Properties();
 			assertEquals(1, c3p0Properties.size());
 			assertEquals("1800", c3p0Properties.getProperty("maxIdleTime"));
+		}
+		
+		@Test
+		public void itIsDebug() throws Exception {
+			assertThat(configuration.isDebug(), is(true));
 		}
 	}
 }

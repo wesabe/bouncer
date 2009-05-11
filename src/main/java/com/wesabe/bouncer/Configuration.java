@@ -20,13 +20,14 @@ public class Configuration {
 	private static final String AUTHENTICATION_REALM_KEY = "bouncer.auth.realm";
 	private static final String SERVER_NAME_KEY = "bouncer.server-name";
 	private static final String BACKEND_URI_KEY = "bouncer.backend.uri";
+	private static final String DEBUG_KEY = "bouncer.debug-errors";
 	
 	private final Properties properties;
 	
 	public Configuration(String filename) throws IOException {
 		this.properties = new Properties();
 		
-		FileReader reader = new FileReader(filename);
+		final FileReader reader = new FileReader(filename);
 		try {
 			properties.load(reader);
 		} finally {
@@ -81,15 +82,19 @@ public class Configuration {
 	public Properties getC3P0Properties() {
 		final Properties c3p0Properties = new Properties();
 		
-		for (Entry<Object, Object> entry : properties.entrySet()) {
+		for (final Entry<Object, Object> entry : properties.entrySet()) {
 			String key = (String) entry.getKey();
 			if (key.startsWith(C3P0_KEY_PREFIX)) {
 				key = key.substring(C3P0_KEY_PREFIX.length());
-				String value = (String) entry.getValue();
+				final String value = (String) entry.getValue();
 				c3p0Properties.setProperty(key, value);
 			}
 		}
 		
 		return c3p0Properties;
+	}
+	
+	public boolean isDebug() {
+		return Boolean.valueOf(properties.getProperty(DEBUG_KEY));
 	}
 }
