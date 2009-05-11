@@ -19,6 +19,7 @@ import com.wesabe.servlet.ErrorReporterFilter;
 import com.wesabe.servlet.SafeFilter;
 import com.wesabe.servlet.errors.DebugErrorReporter;
 import com.wesabe.servlet.errors.ErrorReporter;
+import com.wesabe.servlet.errors.SendmailErrorReporter;
 
 public class Runner {
 	public static void main(String[] args) throws Exception {
@@ -38,8 +39,14 @@ public class Runner {
 		final Context context = new Context();
 		context.addFilter(SafeFilter.class, "/*", 0);
 		
-		final ErrorReporter reporter = new DebugErrorReporter("Exception Notifier <support@wesabe.com>", "coda@wesabe.com", "bouncer");
-		final FilterHolder errorHolder = new FilterHolder(new ErrorReporterFilter(reporter, "thanks for helping"));
+		final ErrorReporter reporter;
+		if (config.isDebug()) {
+			reporter = new DebugErrorReporter("Exception Notifier <support@wesabe.com>", "you@wesabe.com", "bouncer");
+		} else {
+			reporter = new SendmailErrorReporter("Exception Notifier <support@wesabe.com>", "eng@wesabe.com", "bouncer", "/usr/sbin/sendmail");
+		}
+		
+		final FilterHolder errorHolder = new FilterHolder(new ErrorReporterFilter(reporter, "Wesabe engineers have been alerted to this error. If you have further questions, please contact <support@wesabe.com>."));
 		context.addFilter(errorHolder, "/*", 0);
 		
 		if (config.isHttpCompressionEnabled()) {
