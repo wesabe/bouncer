@@ -73,7 +73,7 @@ public class Runner {
 		
 		final HttpClient client = new HttpClient();
 		client.setThreadPool(new QueuedThreadPool(20));
-		client.setConnectorType(HttpClient.CONNECTOR_SOCKET);
+		client.setMaxConnectionsPerAddress(1000);
 		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
 		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
 		context.addServlet(proxyHolder, "/*");
