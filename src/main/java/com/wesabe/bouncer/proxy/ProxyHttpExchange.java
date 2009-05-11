@@ -189,17 +189,13 @@ public class ProxyHttpExchange extends HttpExchange {
 
 	@Override
 	protected void onResponseHeader(Buffer nameBuffer, Buffer valueBuffer) throws IOException {
-		if (nameBuffer != null) {
-			final String name = nameBuffer.toString();
-			if (name != null) {
-				if (!UNPROXYABLE_HEADERS.contains(name)
-						&& (GENERAL_HEADERS.contains(name)
-								|| ENTITY_HEADERS.contains(name)
-								|| RESPONSE_HEADERS.contains(name))) {
-					if (valueBuffer != null) {
-						response.addHeader(name, valueBuffer.toString());
-					}
-				}
+		final String name = nameBuffer.toString();
+		if (!UNPROXYABLE_HEADERS.contains(name)
+				&& (GENERAL_HEADERS.contains(name)
+						|| ENTITY_HEADERS.contains(name)
+						|| RESPONSE_HEADERS.contains(name))) {
+			if (valueBuffer != null) {
+				response.addHeader(name, valueBuffer.toString());
 			}
 		}
 	}

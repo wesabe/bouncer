@@ -257,6 +257,13 @@ public class ProxyHttpExchangeTest {
 		}
 		
 		@Test
+		public void itDoesNotCopyNonStandardHeadersFromTheResponse() throws Exception {
+			exchange.getEventListener().onResponseHeader(new ByteArrayBuffer("X-Dingo-Name"), new ByteArrayBuffer("Frankface"));
+			
+			verify(response, never()).addHeader("X-Dingo-Name", "Frankface");
+		}
+		
+		@Test
 		public void itThrowsABackendFailureExceptionIfTheConnectionFails() throws Exception {
 			final Throwable cause = new Throwable();
 			try {
