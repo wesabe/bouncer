@@ -5,7 +5,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,14 +48,12 @@ public class ProxyServletTest {
 	}
 	
 	private static abstract class Context {
-		protected URI backendUri;
 		protected FakeHttpClient httpClient;
 		protected ProxyServlet servlet;
 		protected ProxyHttpExchangeFactory factory;
 		
 		public void setup() throws Exception {
 			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
-			this.backendUri = URI.create("http://example.com");
 			this.httpClient = new FakeHttpClient();
 			this.factory = mock(ProxyHttpExchangeFactory.class);
 			this.servlet = new ProxyServlet(httpClient, factory);
