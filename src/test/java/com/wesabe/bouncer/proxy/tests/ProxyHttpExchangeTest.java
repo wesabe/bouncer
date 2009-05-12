@@ -278,8 +278,8 @@ public class ProxyHttpExchangeTest {
 			final Throwable cause = new Throwable();
 			exchange.getEventListener().onConnectionFailed(cause);
 			
-			verify(response).setStatus(503);
-			assertThat(writerOutput.toString(), is("The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.\n"));
+			verify(response).reset();
+			verify(response).sendError(503);
 		}
 	}
 }

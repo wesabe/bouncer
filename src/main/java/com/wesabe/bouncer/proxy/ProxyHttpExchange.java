@@ -1,7 +1,6 @@
 package com.wesabe.bouncer.proxy;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -180,12 +179,9 @@ public class ProxyHttpExchange extends HttpExchange {
 	@Override
 	protected void onConnectionFailed(Throwable ex) {
 		LOGGER.log(Level.SEVERE, "Connection failed for " + this, ex);
-		response.reset();
-		response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		try {
-			final PrintWriter writer = response.getWriter();
-			writer.println("The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.");
-			writer.close();
+			response.reset();
+			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		} catch (IOException e) {
 			
 		}
