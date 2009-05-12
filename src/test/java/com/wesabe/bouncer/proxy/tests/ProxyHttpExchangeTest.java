@@ -5,11 +5,15 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletOutputStream;
@@ -28,7 +32,6 @@ import org.mortbay.io.ByteArrayBuffer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.wesabe.bouncer.auth.WesabeCredentials;
-import com.wesabe.bouncer.proxy.BackendFailureException;
 import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 
 @RunWith(Enclosed.class)
@@ -189,9 +192,13 @@ public class ProxyHttpExchangeTest {
 		private HttpServletResponse response;
 		private ServletOutputStream outputStream;
 		private ProxyHttpExchange exchange;
+		private ByteArrayOutputStream writerOutput;
+		private PrintWriter writer;
 		
 		@Before
 		public void setup() throws Exception {
+			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
+			
 			this.backend = URI.create("http://example.com:8081/");
 			this.request = mock(HttpServletRequest.class);
 			when(request.getProtocol()).thenReturn("HTTP/1.0");
@@ -202,6 +209,9 @@ public class ProxyHttpExchangeTest {
 			this.outputStream = mock(ServletOutputStream.class);
 			this.response = mock(HttpServletResponse.class);
 			when(response.getOutputStream()).thenReturn(outputStream);
+			this.writerOutput = new ByteArrayOutputStream();
+			this.writer = new PrintWriter(writerOutput);
+			when(response.getWriter()).thenReturn(writer);
 			this.exchange = new ProxyHttpExchange(backend, request, response);
 		}
 		
@@ -264,14 +274,12 @@ public class ProxyHttpExchangeTest {
 		}
 		
 		@Test
-		public void itThrowsABackendFailureExceptionIfTheConnectionFails() throws Exception {
+		public void itReturnsA503IfTheConnectionFails() throws Exception {
 			final Throwable cause = new Throwable();
-			try {
-				exchange.getEventListener().onConnectionFailed(cause);
-				fail("should have thrown a BackendFailureException but didn't");
-			} catch (final BackendFailureException e) {
-				assertThat(e.getCause(), is(cause));
-			}
+			exchange.getEventListener().onConnectionFailed(cause);
+			
+			verify(response).setStatus(503);
+			assertThat(writerOutput.toString(), is("The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.\n"));
 		}
 	}
 }

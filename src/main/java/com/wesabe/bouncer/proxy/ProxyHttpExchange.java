@@ -1,10 +1,13 @@
 package com.wesabe.bouncer.proxy;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +18,8 @@ import org.mortbay.jetty.client.HttpExchange;
 import com.wesabe.servlet.normalizers.util.CaseInsensitiveSet;
 
 public class ProxyHttpExchange extends HttpExchange {
+	private static final Logger LOGGER = Logger.getLogger(ProxyHttpExchange.class.getCanonicalName());
+	
 	/**
 	 * Valid HTTP 1.1 general header fields.
 	 * 
@@ -174,7 +179,16 @@ public class ProxyHttpExchange extends HttpExchange {
 	
 	@Override
 	protected void onConnectionFailed(Throwable ex) {
-		throw new BackendFailureException(this, ex);
+		LOGGER.log(Level.SEVERE, "Connection failed for " + this, ex);
+		response.reset();
+		response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+		try {
+			final PrintWriter writer = response.getWriter();
+			writer.println("The server is currently unable to handle the request due to a temporary overloading or maintenance of the server.");
+			writer.close();
+		} catch (IOException e) {
+			
+		}
 	}
 
 	@Override
