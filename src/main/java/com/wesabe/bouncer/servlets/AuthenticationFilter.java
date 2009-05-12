@@ -1,7 +1,6 @@
 package com.wesabe.bouncer.servlets;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.security.Principal;
 
 import javax.servlet.Filter;
@@ -21,12 +20,10 @@ import com.wesabe.servlet.SafeRequest;
 public class AuthenticationFilter implements Filter {
 	private final Authenticator authenticator;
 	private final String challenge;
-	private final String errorMessage;
 	
-	public AuthenticationFilter(Authenticator authenticator, String realm, String errorMessage) {
+	public AuthenticationFilter(Authenticator authenticator, String realm) {
 		this.authenticator = authenticator;
 		this.challenge = "Basic realm=\"" + realm + "\"";
-		this.errorMessage = errorMessage;
 	}
 	
 	
@@ -47,11 +44,8 @@ public class AuthenticationFilter implements Filter {
 			chain.doFilter(request, resp);
 		} else {
 			final HttpServletResponse response = (HttpServletResponse) resp;
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setHeader("WWW-Authenticate", challenge);
-			final PrintWriter writer = resp.getWriter();
-			writer.println(errorMessage);
-			writer.close();
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 	}
 

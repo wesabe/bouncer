@@ -68,7 +68,7 @@ public class Runner {
 		final Authenticator authenticator = new WesabeAuthenticator(dataSource);
 		
 		context.addFilter(new FilterHolder(
-			new AuthenticationFilter(authenticator, config.getAuthenticationRealm(), config.getAuthenticationErrorMessage())
+			new AuthenticationFilter(authenticator, config.getAuthenticationRealm())
 		), "/*", 0);
 		
 		final HttpClient client = new HttpClient();

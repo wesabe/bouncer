@@ -2,7 +2,6 @@ package com.wesabe.bouncer.servlets.tests;
 
 import static org.mockito.Mockito.*;
 
-import java.io.PrintWriter;
 import java.security.Principal;
 
 import javax.servlet.FilterChain;
@@ -34,7 +33,7 @@ public class AuthenticationFilterTest {
 		@Before
 		public void setup() throws Exception {
 			this.authenticator = mock(Authenticator.class);
-			this.filter = new AuthenticationFilter(authenticator, "Test API", "Gotta have a password.");
+			this.filter = new AuthenticationFilter(authenticator, "Test API");
 			
 			this.request = mock(Request.class);
 			this.response = mock(Response.class);
@@ -62,20 +61,13 @@ public class AuthenticationFilterTest {
 		private FilterChain chain;
 		private Authenticator authenticator;
 		private AuthenticationFilter filter;
-		private PrintWriter writer;
 		
 		@Before
 		public void setup() throws Exception {
 			this.authenticator = mock(Authenticator.class);
-			this.filter = new AuthenticationFilter(authenticator, "Test API", "Gotta have a password.");
-			
+			this.filter = new AuthenticationFilter(authenticator, "Test API");
 			this.request = mock(Request.class);
-			
-			this.writer = mock(PrintWriter.class);
-			
 			this.response = mock(HttpServletResponse.class);
-			when(response.getWriter()).thenReturn(writer);
-			
 			this.chain = mock(FilterChain.class);
 		}
 		
@@ -85,12 +77,10 @@ public class AuthenticationFilterTest {
 			
 			filter.doFilter(new SafeRequest(request), response, chain);
 			
-			InOrder inOrder = inOrder(authenticator, response, writer);
+			InOrder inOrder = inOrder(authenticator, response);
 			inOrder.verify(authenticator).authenticate(request);
-			inOrder.verify(response).setStatus(401);
 			inOrder.verify(response).setHeader("WWW-Authenticate", "Basic realm=\"Test API\"");
-			inOrder.verify(writer).println("Gotta have a password.");
-			inOrder.verify(writer).close();
+			inOrder.verify(response).sendError(401);
 		}
 	}
 	
@@ -101,7 +91,7 @@ public class AuthenticationFilterTest {
 		@Before
 		public void setup() throws Exception {
 			this.authenticator = mock(Authenticator.class);
-			this.filter = new AuthenticationFilter(authenticator, "Test API", "Gotta have a password.");
+			this.filter = new AuthenticationFilter(authenticator, "Test API");
 		}
 		
 		@Test
