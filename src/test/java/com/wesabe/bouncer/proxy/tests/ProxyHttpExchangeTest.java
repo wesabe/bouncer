@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -193,8 +191,6 @@ public class ProxyHttpExchangeTest {
 		private HttpServletResponse response;
 		private ServletOutputStream outputStream;
 		private ProxyHttpExchange exchange;
-		private ByteArrayOutputStream writerOutput;
-		private PrintWriter writer;
 		
 		@Before
 		public void setup() throws Exception {
@@ -211,9 +207,6 @@ public class ProxyHttpExchangeTest {
 			this.outputStream = mock(ServletOutputStream.class);
 			this.response = mock(HttpServletResponse.class);
 			when(response.getOutputStream()).thenReturn(outputStream);
-			this.writerOutput = new ByteArrayOutputStream();
-			this.writer = new PrintWriter(writerOutput);
-			when(response.getWriter()).thenReturn(writer);
 			this.exchange = new ProxyHttpExchange(backend, request, response);
 		}
 		
