@@ -1,7 +1,9 @@
 package com.wesabe.bouncer;
 
+import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.client.HttpClient;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.FilterHolder;
 import org.mortbay.jetty.servlet.ServletHolder;
@@ -31,7 +33,11 @@ public class Runner {
 		final Configuration config = new Configuration(args[0]);
 		final int port = Integer.valueOf(args[1]);
 		
-		final Server server = new Server(port);
+		final Server server = new Server();
+		final Connector connector = new SelectChannelConnector();
+		connector.setPort(port);
+		server.addConnector(connector);
+		
 		server.setGracefulShutdown(5000);
 		server.setSendServerVersion(false);
 		server.setStopAtShutdown(true);
