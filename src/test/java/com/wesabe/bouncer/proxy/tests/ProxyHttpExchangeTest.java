@@ -28,6 +28,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mortbay.io.Buffer;
 import org.mortbay.io.ByteArrayBuffer;
+import org.mortbay.jetty.EofException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -198,6 +199,7 @@ public class ProxyHttpExchangeTest {
 		@Before
 		public void setup() throws Exception {
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
+			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
 			
 			this.backend = URI.create("http://example.com:8081/");
 			this.request = mock(HttpServletRequest.class);
@@ -280,6 +282,25 @@ public class ProxyHttpExchangeTest {
 			
 			verify(response).reset();
 			verify(response).sendError(503);
+		}
+		
+		@Test
+		public void itIgnoresEofExceptions() throws Exception {
+			// REVIEW coda@wesabe.com -- May 12, 2009: Testing logging is hard.
+			// This and itLogsOtherExceptions are just smoke tests, since we
+			// don't control ProxyHttpExchange or HttpExchange's logging. Jetty
+			// handles all logging through the Log singleton, and dependency
+			// injection for ProxyHttpExchange would just complicate things.
+			// So these tests are just to make sure we're not going to explode
+			// if this code gets run.
+			final EofException e = new EofException();
+			exchange.getEventListener().onException(e);
+		}
+		
+		@Test
+		public void itLogsOtherExceptions() throws Exception {
+			final NullPointerException e = new NullPointerException();
+			exchange.getEventListener().onException(e);
 		}
 	}
 }

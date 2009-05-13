@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.mortbay.io.Buffer;
+import org.mortbay.jetty.EofException;
 import org.mortbay.jetty.client.HttpExchange;
 
 import com.wesabe.servlet.normalizers.util.CaseInsensitiveSet;
@@ -183,8 +184,18 @@ public class ProxyHttpExchange extends HttpExchange {
 			response.reset();
 			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
 		} catch (IOException e) {
-			
+			LOGGER.log(Level.FINE, "Unable to send 503 to client", ex);
 		}
+	}
+	
+	@Override
+	protected void onException(Throwable ex) {
+		if (ex instanceof EofException) {
+			LOGGER.log(Level.FINE, "Dropped connection", ex);
+			return;
+		}
+
+		super.onException(ex);
 	}
 
 	@Override
