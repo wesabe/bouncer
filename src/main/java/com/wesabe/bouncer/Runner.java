@@ -14,6 +14,7 @@ import com.mchange.v2.c3p0.DataSources;
 import com.mchange.v2.c3p0.PooledDataSource;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
+import com.wesabe.bouncer.jetty.QuietErrorHandler;
 import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
 import com.wesabe.bouncer.servlets.ProxyServlet;
@@ -76,6 +77,8 @@ public class Runner {
 		context.addFilter(new FilterHolder(
 			new AuthenticationFilter(authenticator, config.getAuthenticationRealm())
 		), "/*", 0);
+		
+		context.setErrorHandler(new QuietErrorHandler());
 		
 		final HttpClient client = new HttpClient();
 		client.setThreadPool(new QueuedThreadPool(20));
