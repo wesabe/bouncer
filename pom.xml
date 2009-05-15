@@ -85,6 +85,11 @@
 			<artifactId>servlet-safety</artifactId>
 			<version>1.1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>memcached</artifactId>
+			<version>2.3.2-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
