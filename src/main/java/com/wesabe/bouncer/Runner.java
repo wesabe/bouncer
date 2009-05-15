@@ -1,5 +1,7 @@
 package com.wesabe.bouncer;
 
+import javax.sql.DataSource;
+
 import net.spy.memcached.MemcachedClient;
 
 import org.mortbay.jetty.Connector;
@@ -13,7 +15,6 @@ import org.mortbay.servlet.GzipFilter;
 import org.mortbay.thread.QueuedThreadPool;
 
 import com.mchange.v2.c3p0.DataSources;
-import com.mchange.v2.c3p0.PooledDataSource;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.jetty.QuietErrorHandler;
@@ -28,24 +29,49 @@ import com.wesabe.servlet.errors.SendmailErrorReporter;
 
 public class Runner {
 	public static void main(String[] args) throws Exception {
-		if (args.length != 2) {
-			System.err.println("Usage: java -jar <bouncer.jar> <config file> <port>");
-			System.exit(-1);
-		}
+		checkArguments(args);
 		
 		final Configuration config = new Configuration(args[0]);
-		final int port = Integer.valueOf(args[1]);
+		final Server server = setupServer(Integer.valueOf(args[1]));
+		final Context context = setupContext(server, config);
+		setupAuthentication(config, context);
+		setupProxy(config, context);
 		
-		final Server server = new Server();
-		final Connector connector = new SelectChannelConnector();
-		connector.setPort(port);
-		server.addConnector(connector);
+		server.start();
+		server.join();
+	}
+
+	private static void setupProxy(Configuration config, Context context)
+			throws Exception {
+		final HttpClient client = new HttpClient();
+		client.setThreadPool(new QueuedThreadPool(20));
+		client.setMaxConnectionsPerAddress(1000);
+		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
+		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
+		context.addServlet(proxyHolder, "/*");
+	}
+
+	private static void setupAuthentication(Configuration config, Context context)
+			throws Exception {
+		final DataSource dataSource = DataSources.pooledDataSource(
+				DataSources.unpooledDataSource(
+						config.getJdbcUri().toASCIIString(),
+						config.getJdbcUsername(),
+						config.getJdbcPassword()
+				),
+				config.getC3P0Properties()
+		);
 		
-		server.setGracefulShutdown(5000);
-		server.setSendServerVersion(false);
-		server.setStopAtShutdown(true);
+		final MemcachedClient memcached = new MemcachedClient(config.getMemcachedServers());
+		final Authenticator authenticator = new WesabeAuthenticator(dataSource, memcached);
 		
-		final Context context = new Context();
+		context.addFilter(new FilterHolder(
+			new AuthenticationFilter(authenticator, config.getAuthenticationRealm())
+		), "/*", 0);
+	}
+
+	private static Context setupContext(Server server, Configuration config) throws Exception {
+		final Context context = new Context(server, "/");
 		context.addFilter(SafeFilter.class, "/*", 0);
 		
 		final ErrorReporter reporter;
@@ -65,34 +91,26 @@ public class Runner {
 			context.addFilter(gzipHolder, "/*", 0);
 		}
 		
-		final PooledDataSource dataSource = (PooledDataSource) DataSources.pooledDataSource(
-				DataSources.unpooledDataSource(
-						config.getJdbcUri().toASCIIString(),
-						config.getJdbcUsername(),
-						config.getJdbcPassword()
-				),
-				config.getC3P0Properties()
-		);
-		
-		final MemcachedClient memcached = new MemcachedClient(config.getMemcachedServers());
-		final Authenticator authenticator = new WesabeAuthenticator(dataSource, memcached);
-		
-		context.addFilter(new FilterHolder(
-			new AuthenticationFilter(authenticator, config.getAuthenticationRealm())
-		), "/*", 0);
-		
 		context.setErrorHandler(new QuietErrorHandler());
 		
-		final HttpClient client = new HttpClient();
-		client.setThreadPool(new QueuedThreadPool(20));
-		client.setMaxConnectionsPerAddress(1000);
-		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
-		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
-		context.addServlet(proxyHolder, "/*");
-		
-		server.addHandler(context);
-		
-		server.start();
-		server.join();
+		return context;
+	}
+
+	private static Server setupServer(int port) {
+		final Server server = new Server();
+		final Connector connector = new SelectChannelConnector();
+		connector.setPort(port);
+		server.addConnector(connector);
+		server.setGracefulShutdown(5000);
+		server.setSendServerVersion(false);
+		server.setStopAtShutdown(true);
+		return server;
+	}
+
+	private static void checkArguments(String[] args) {
+		if (args.length != 2) {
+			System.err.println("Usage: java -jar <bouncer.jar> <config file> <port>");
+			System.exit(-1);
+		}
 	}
 }
