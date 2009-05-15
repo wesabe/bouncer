@@ -3,7 +3,9 @@ package com.wesabe.bouncer.tests;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 
+import java.net.InetSocketAddress;
 import java.net.URI;
+import java.util.List;
 import java.util.Properties;
 
 import org.junit.Before;
@@ -85,6 +87,19 @@ public class ConfigurationTest {
 			final Properties c3p0Properties = configuration.getC3P0Properties();
 			assertEquals(1, c3p0Properties.size());
 			assertEquals("1800", c3p0Properties.getProperty("maxIdleTime"));
+		}
+		
+		@Test
+		public void itHasMemcachedServers() throws Exception {
+			final List<InetSocketAddress> servers = configuration.getMemcachedServers();
+			
+			final InetSocketAddress first = servers.get(0);
+			assertThat(first.getHostName(), is("memcache1"));
+			assertThat(first.getPort(), is(11211));
+			
+			final InetSocketAddress second = servers.get(1);
+			assertThat(second.getHostName(), is("memcache2"));
+			assertThat(second.getPort(), is(11212));
 		}
 		
 		@Test

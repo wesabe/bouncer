@@ -2,10 +2,14 @@ package com.wesabe.bouncer;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 import java.util.Map.Entry;
+
+import net.spy.memcached.AddrUtil;
 
 public class Configuration {
 	private static final String C3P0_KEY_PREFIX = "c3p0.";
@@ -16,6 +20,7 @@ public class Configuration {
 	private static final String JDBC_USERNAME_KEY = "bouncer.jdbc.username";
 	private static final String JDBC_URI_KEY = "bouncer.jdbc.uri";
 	private static final String JDBC_DRIVER_KEY = "bouncer.jdbc.driver";
+	private static final String MEMCACHED_SERVERS_KEY = "bouncer.memcached.servers";
 	private static final String AUTHENTICATION_ERROR_MESSAGE_KEY = "bouncer.auth.error-message";
 	private static final String AUTHENTICATION_REALM_KEY = "bouncer.auth.realm";
 	private static final String SERVER_NAME_KEY = "bouncer.server-name";
@@ -77,6 +82,10 @@ public class Configuration {
 
 	public Integer getHttpCompressionMinimumSize() {
 		return Integer.valueOf(properties.getProperty(HTTP_COMPRESSION_MINIMUM_SIZE_KEY));
+	}
+	
+	public List<InetSocketAddress> getMemcachedServers() {
+		return AddrUtil.getAddresses(properties.getProperty(MEMCACHED_SERVERS_KEY));
 	}
 
 	public Properties getC3P0Properties() {
