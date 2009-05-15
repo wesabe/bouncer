@@ -117,6 +117,7 @@ public class ProxyHttpExchange extends HttpExchange {
 	private final URI backendUri;
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
+	private volatile boolean canceled = false;
 	
 	public ProxyHttpExchange(URI backend, HttpServletRequest request, HttpServletResponse response) {
 		this.backendUri = backend;
@@ -200,23 +201,43 @@ public class ProxyHttpExchange extends HttpExchange {
 
 	@Override
 	protected void onResponseContent(Buffer content) throws IOException {
-		content.writeTo(response.getOutputStream());
+		if (!canceled) {
+			content.writeTo(response.getOutputStream());
+		}
 	}
 
 	@Override
 	protected void onResponseStatus(Buffer version, int status, Buffer reason) throws IOException {
-		response.setStatus(status);
+		if (status == HttpServletResponse.SC_INTERNAL_SERVER_ERROR) {
+			response.reset();
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			cancel();
+		} else {
+			response.setStatus(status);
+		}
+		
+	}
+	
+	@Override
+	public void cancel() {
+		this.canceled = true;
+	}
+	
+	public boolean isCanceled() {
+		return canceled;
 	}
 
 	@Override
 	protected void onResponseHeader(Buffer nameBuffer, Buffer valueBuffer) throws IOException {
-		final String name = nameBuffer.toString();
-		if (!UNPROXYABLE_HEADERS.contains(name)
-				&& (GENERAL_HEADERS.contains(name)
-						|| ENTITY_HEADERS.contains(name)
-						|| RESPONSE_HEADERS.contains(name))) {
-			if (valueBuffer != null) {
-				response.addHeader(name, valueBuffer.toString());
+		if (!canceled) {
+			final String name = nameBuffer.toString();
+			if (!UNPROXYABLE_HEADERS.contains(name)
+					&& (GENERAL_HEADERS.contains(name)
+							|| ENTITY_HEADERS.contains(name)
+							|| RESPONSE_HEADERS.contains(name))) {
+				if (valueBuffer != null) {
+					response.addHeader(name, valueBuffer.toString());
+				}
 			}
 		}
 	}

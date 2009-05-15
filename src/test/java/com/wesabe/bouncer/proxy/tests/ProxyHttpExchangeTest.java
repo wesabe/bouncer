@@ -296,4 +296,62 @@ public class ProxyHttpExchangeTest {
 			exchange.getEventListener().onException(e);
 		}
 	}
+	
+	public static class Proxying_A_500_Internal_Server_Error {
+		private URI backend;
+		private HttpServletRequest request;
+		private HttpServletResponse response;
+		private ServletOutputStream outputStream;
+		private ProxyHttpExchange exchange;
+		
+		@Before
+		public void setup() throws Exception {
+			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
+			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
+			
+			this.backend = URI.create("http://example.com:8081/");
+			this.request = mock(HttpServletRequest.class);
+			when(request.getProtocol()).thenReturn("HTTP/1.0");
+			when(request.getMethod()).thenReturn("POST");
+			when(request.getRequestURI()).thenReturn("/dingofroop");
+			when(request.getHeaderNames()).thenReturn(Collections.enumeration(ImmutableList.of()));
+			when(request.getUserPrincipal()).thenReturn(new WesabeCredentials(200, "WOO"));
+			this.outputStream = mock(ServletOutputStream.class);
+			this.response = mock(HttpServletResponse.class);
+			when(response.getOutputStream()).thenReturn(outputStream);
+			this.exchange = new ProxyHttpExchange(backend, request, response);
+		}
+		
+		@Test
+		public void itCancelsTheExchange() throws Exception {
+			exchange.getEventListener().onResponseStatus(null, 500, null);
+			
+			assertThat(exchange.isCanceled(), is(true));
+		}
+		
+		@Test
+		public void itResetsTheResponse() throws Exception {
+			exchange.getEventListener().onResponseStatus(null, 500, null);
+			
+			verify(response).reset();
+		}
+		
+		@Test
+		public void itDoesNotProxyTheResponseBody() throws Exception {
+			final Buffer content = mock(Buffer.class);
+			
+			exchange.getEventListener().onResponseStatus(null, 500, null);
+			exchange.getEventListener().onResponseContent(content);
+			
+			verify(content, never()).writeTo(outputStream);
+		}
+		
+		@Test
+		public void itDoesNotCopyResponseHeadersFromTheResponse() throws Exception {
+			exchange.getEventListener().onResponseStatus(null, 500, null);
+			exchange.getEventListener().onResponseHeader(new ByteArrayBuffer("Age"), new ByteArrayBuffer("viejo"));
+			
+			verify(response, never()).addHeader("Age", "viejo");
+		}
+	}
 }
