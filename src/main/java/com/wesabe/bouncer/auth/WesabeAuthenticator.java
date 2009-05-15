@@ -28,7 +28,7 @@ public class WesabeAuthenticator implements Authenticator {
 		private final String username, password;
 		
 		public static AuthHeader parse(String authHeader) {
-			if (authHeader != null && authHeader.startsWith(BASIC_AUTHENTICATION_PREFIX)) {
+			if ((authHeader != null) && authHeader.startsWith(BASIC_AUTHENTICATION_PREFIX)) {
 				final String encodedCreds = authHeader.substring(BASIC_AUTHENTICATION_PREFIX.length(), authHeader.length());
 				final String creds = new String(Base64.decodeBase64(encodedCreds.getBytes()));
 				int separator = creds.indexOf(':');
@@ -82,20 +82,16 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 	
 	@Override
-	public Principal authenticate(Request request) throws LockedAccountException {
+	public Principal authenticate(Request request) throws LockedAccountException, BadCredentialsException {
 		final AuthHeader header = AuthHeader.parse(request.getHeader(AUTHORIZATION_HEADER));
 		if (header != null) {
 			try {
 				final Connection connection = dataSource.getConnection();
 				try {
 					final ResultSet resultSet = getResults(connection, header);
-
 					if (resultSet.first()) {
 						return buildCredentials(header, resultSet);
 					}
-					
-					return null;
-
 				} catch (NoSuchAlgorithmException e) {
 					throw new RuntimeException(e);
 				} finally {
@@ -107,7 +103,7 @@ public class WesabeAuthenticator implements Authenticator {
 			}
 		}
 		
-		return null;
+		throw new BadCredentialsException();
 	}
 
 	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)

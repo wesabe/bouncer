@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mortbay.jetty.Request;
 
+import com.wesabe.bouncer.auth.BadCredentialsException;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.auth.WesabeCredentials;
 
@@ -55,10 +56,15 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
+		public void itThrowsABadCredentialsException() throws Exception {
 			when(request.getHeader("Authorization")).thenReturn(null);
 			
-			assertNull(authenticator.authenticate(request));
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
@@ -70,10 +76,15 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
+		public void itThrowsABadCredentialsException() throws Exception {
 			when(request.getHeader("Authorization")).thenReturn("Digest BLAHBLAH");
 			
-			assertNull(authenticator.authenticate(request));
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
@@ -85,10 +96,15 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
+		public void itThrowsABadCredentialsException() throws Exception {
 			when(request.getHeader("Authorization")).thenReturn("Basic ");
 			
-			assertNull(authenticator.authenticate(request));
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
@@ -100,10 +116,15 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
+		public void itThrowsABadCredentialsException() throws Exception {
 			when(request.getHeader("Authorization")).thenReturn("Basic aaa");
 			
-			assertNull(authenticator.authenticate(request));
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
@@ -115,10 +136,15 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
+		public void itThrowsABadCredentialsException() throws Exception {
 			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ28=");
 			
-			assertNull(authenticator.authenticate(request));
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
@@ -134,13 +160,22 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
-			assertNull(authenticator.authenticate(request));
+		public void itThrowsABadCredentialsException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 		
 		@Test
 		public void itConnectsToTheDatabaseAndSelectsTheUserRecord() throws Exception {
-			authenticator.authenticate(request);
+			try {
+				authenticator.authenticate(request);
+			} catch (BadCredentialsException e) {
+				
+			}
 			
 			InOrder inOrder = inOrder(dataSource, connection, statement, resultSet);
 			inOrder.verify(dataSource).getConnection();

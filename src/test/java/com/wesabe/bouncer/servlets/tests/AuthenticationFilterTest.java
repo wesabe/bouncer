@@ -17,6 +17,7 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 
 import com.wesabe.bouncer.auth.Authenticator;
+import com.wesabe.bouncer.auth.BadCredentialsException;
 import com.wesabe.bouncer.auth.LockedAccountException;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
 import com.wesabe.servlet.SafeRequest;
@@ -74,7 +75,7 @@ public class AuthenticationFilterTest {
 		
 		@Test
 		public void itReturnsABasicAuthChallenge() throws Exception {
-			when(authenticator.authenticate(request)).thenReturn(null);
+			when(authenticator.authenticate(request)).thenThrow(new BadCredentialsException());
 			
 			final SafeRequest safeRequest = new SafeRequest(request);
 			filter.doFilter(safeRequest, response, chain);

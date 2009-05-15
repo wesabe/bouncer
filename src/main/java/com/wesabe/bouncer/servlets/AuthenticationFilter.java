@@ -16,6 +16,7 @@ import org.mortbay.jetty.HttpHeaders;
 import org.mortbay.jetty.Request;
 
 import com.wesabe.bouncer.auth.Authenticator;
+import com.wesabe.bouncer.auth.BadCredentialsException;
 import com.wesabe.bouncer.auth.LockedAccountException;
 import com.wesabe.servlet.SafeRequest;
 
@@ -43,18 +44,13 @@ public class AuthenticationFilter implements Filter {
 		final Principal principal;
 		try {
 			principal = authenticator.authenticate(request);
-		} catch (LockedAccountException e) {
-			response.setIntHeader(HttpHeaders.RETRY_AFTER, e.getPenaltyDuration());
-			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
-		
-		if (principal != null) {
 			request.setUserPrincipal(principal);
 			request.setAuthType(HttpServletRequest.BASIC_AUTH);
 			chain.doFilter(request, resp);
-		} else {
-			
+		} catch (LockedAccountException e) {
+			response.setIntHeader(HttpHeaders.RETRY_AFTER, e.getPenaltyDuration());
+			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+		} catch (BadCredentialsException e) {
 			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, challenge);
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}

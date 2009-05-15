@@ -1,7 +1,7 @@
 package com.wesabe.bouncer.auth;
 
 /**
- * An exception raised by {@link Authenticator} when a request is sent for an
+ * An exception thrown by {@link Authenticator} when a request is sent for an
  * account which is locked due to too many failed authentication requests.
  * 
  * @author coda
