@@ -176,11 +176,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 	
 	private void registerSuccessfulLogin(int userId) {
-		try {
-			memcached.delete(accountCounterKey(userId)).get();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		memcached.delete(accountCounterKey(userId));
 	}
 
 	private void lockAccount(int userId, int penalty) {
