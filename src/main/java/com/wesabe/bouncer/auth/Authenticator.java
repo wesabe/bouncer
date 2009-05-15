@@ -17,6 +17,7 @@ public interface Authenticator {
 	 * 
 	 * @param request a potentially authenticated request
 	 * @return the {@link Principal} associated with {@code request}
+	 * @throws LockedAccountException if the principal's account is locked
 	 */
-	public abstract Principal authenticate(Request request);
+	public abstract Principal authenticate(Request request) throws LockedAccountException;
 }

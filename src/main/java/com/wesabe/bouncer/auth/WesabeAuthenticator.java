@@ -82,7 +82,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 	
 	@Override
-	public Principal authenticate(Request request) {
+	public Principal authenticate(Request request) throws LockedAccountException {
 		final AuthHeader header = AuthHeader.parse(request.getHeader(AUTHORIZATION_HEADER));
 		if (header != null) {
 			try {

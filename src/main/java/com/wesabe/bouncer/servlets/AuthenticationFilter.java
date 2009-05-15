@@ -12,9 +12,11 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mortbay.jetty.HttpHeaders;
 import org.mortbay.jetty.Request;
 
 import com.wesabe.bouncer.auth.Authenticator;
+import com.wesabe.bouncer.auth.LockedAccountException;
 import com.wesabe.servlet.SafeRequest;
 
 public class AuthenticationFilter implements Filter {
@@ -37,14 +39,23 @@ public class AuthenticationFilter implements Filter {
 			throws IOException, ServletException {
 		final SafeRequest safeRequest = (SafeRequest) req;
 		final Request request = (Request) safeRequest.getRequest();
-		final Principal principal = authenticator.authenticate(request);
+		final HttpServletResponse response = (HttpServletResponse) resp;
+		final Principal principal;
+		try {
+			principal = authenticator.authenticate(request);
+		} catch (LockedAccountException e) {
+			response.setIntHeader(HttpHeaders.RETRY_AFTER, e.getPenaltyDuration());
+			response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			return;
+		}
+		
 		if (principal != null) {
 			request.setUserPrincipal(principal);
 			request.setAuthType(HttpServletRequest.BASIC_AUTH);
 			chain.doFilter(request, resp);
 		} else {
-			final HttpServletResponse response = (HttpServletResponse) resp;
-			response.setHeader("WWW-Authenticate", challenge);
+			
+			response.setHeader(HttpHeaders.WWW_AUTHENTICATE, challenge);
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 		}
 	}

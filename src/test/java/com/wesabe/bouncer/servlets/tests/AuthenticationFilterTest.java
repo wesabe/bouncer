@@ -17,6 +17,7 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Response;
 
 import com.wesabe.bouncer.auth.Authenticator;
+import com.wesabe.bouncer.auth.LockedAccountException;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
 import com.wesabe.servlet.SafeRequest;
 
@@ -75,12 +76,47 @@ public class AuthenticationFilterTest {
 		public void itReturnsABasicAuthChallenge() throws Exception {
 			when(authenticator.authenticate(request)).thenReturn(null);
 			
-			filter.doFilter(new SafeRequest(request), response, chain);
+			final SafeRequest safeRequest = new SafeRequest(request);
+			filter.doFilter(safeRequest, response, chain);
+			
+			verify(chain, never()).doFilter(safeRequest, response);
 			
 			InOrder inOrder = inOrder(authenticator, response);
 			inOrder.verify(authenticator).authenticate(request);
 			inOrder.verify(response).setHeader("WWW-Authenticate", "Basic realm=\"Test API\"");
 			inOrder.verify(response).sendError(401);
+		}
+	}
+	
+	public static class Filtering_A_Request_For_A_Locked_Account {
+		private Request request;
+		private HttpServletResponse response;
+		private FilterChain chain;
+		private Authenticator authenticator;
+		private AuthenticationFilter filter;
+
+		@Before
+		public void setup() throws Exception {
+			this.authenticator = mock(Authenticator.class);
+			this.filter = new AuthenticationFilter(authenticator, "Test API");
+			this.request = mock(Request.class);
+			this.response = mock(HttpServletResponse.class);
+			this.chain = mock(FilterChain.class);
+			
+			when(authenticator.authenticate(request)).thenThrow(new LockedAccountException(200));
+		}
+		
+		@Test
+		public void itReturnsAServiceUnavailableResponse() throws Exception {
+			final SafeRequest safeRequest = new SafeRequest(request);
+			filter.doFilter(safeRequest, response, chain);
+			
+			verify(chain, never()).doFilter(safeRequest, response);
+			
+			InOrder inOrder = inOrder(authenticator, response);
+			inOrder.verify(authenticator).authenticate(request);
+			inOrder.verify(response).setIntHeader("Retry-After", 200);
+			inOrder.verify(response).sendError(503);
 		}
 	}
 	
