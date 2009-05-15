@@ -107,7 +107,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 
 	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)
-			throws SQLException, NoSuchAlgorithmException {
+			throws SQLException, NoSuchAlgorithmException, BadCredentialsException {
 		final String salt = resultSet.getString(SALT_FIELD);
 		final int userId = resultSet.getInt(USER_ID_FIELD);
 		final String username = resultSet.getString(USERNAME_FIELD);
@@ -125,7 +125,7 @@ public class WesabeAuthenticator implements Authenticator {
 			);
 		}
 		
-		return null;
+		throw new BadCredentialsException();
 	}
 
 	private ResultSet getResults(Connection connection, AuthHeader header)

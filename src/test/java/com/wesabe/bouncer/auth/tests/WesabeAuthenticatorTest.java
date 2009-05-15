@@ -215,8 +215,13 @@ public class WesabeAuthenticatorTest {
 		};
 		
 		@Test
-		public void itReturnsNull() throws Exception {
-			assertNull(authenticator.authenticate(request));
+		public void itThrowsABadCredentialsException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
 		}
 	}
 	
