@@ -10,6 +10,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import net.spy.memcached.MemcachedClientIF;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.mortbay.jetty.Request;
@@ -75,10 +77,13 @@ public class WesabeAuthenticator implements Authenticator {
 		"ORDER BY last_web_login DESC " +
 		"LIMIT 1";
 	private static final String HASH_ALGORITHM = "SHA-256";
+	private static final int ONE_DAY = 60 * 60 * 24;
 	private final DataSource dataSource;
+	private final MemcachedClientIF memcached;
 	
-	public WesabeAuthenticator(DataSource dataSource) {
+	public WesabeAuthenticator(DataSource dataSource, MemcachedClientIF memcached) {
 		this.dataSource = dataSource;
+		this.memcached = memcached;
 	}
 	
 	@Override
@@ -107,15 +112,21 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 
 	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)
-			throws SQLException, NoSuchAlgorithmException, BadCredentialsException {
+			throws SQLException, NoSuchAlgorithmException, LockedAccountException, BadCredentialsException {
 		final String salt = resultSet.getString(SALT_FIELD);
 		final int userId = resultSet.getInt(USER_ID_FIELD);
 		final String username = resultSet.getString(USERNAME_FIELD);
 		final String passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
 		
+		if (isThrottled(userId)) {
+			final int penalty = registerFailedLogin(userId);
+			throw new LockedAccountException(penalty);
+		}
+		
 		final String candidatePasswordHash = concatenateAndHash(salt, header.getPassword());
 		
 		if (candidatePasswordHash.equals(passwordHash)) {
+			registerSuccessfulLogin(userId);
 			return new WesabeCredentials(
 					userId,
 					concatenateAndHash(
@@ -125,7 +136,66 @@ public class WesabeAuthenticator implements Authenticator {
 			);
 		}
 		
+		final int penalty = registerFailedLogin(userId);
+		if (penalty > 0) {
+			throw new LockedAccountException(penalty);
+		}
+		
 		throw new BadCredentialsException();
+	}
+	
+	private int getPenalty(long failedAttempts) {
+	    final int freeLoginAttempts = 3;
+	    if (failedAttempts <= freeLoginAttempts) {
+			return 0;
+		}
+	    final int initialPenalty = 15; // seconds
+	    final int maxPenalty = 60 * 15; // 15 minutes
+	    final double unfreeAttempts = failedAttempts - freeLoginAttempts - 1;
+	    final double penalty = Math.pow(2, unfreeAttempts) * initialPenalty;
+	    return Double.valueOf(Math.min(penalty, maxPenalty)).intValue();
+	}
+
+	
+	private String accountCounterKey(int userId) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append("failed-logins:");
+		builder.append(userId);
+		return builder.toString();
+	}
+	
+	private int registerFailedLogin(int userId) {
+		final String key = accountCounterKey(userId);
+		memcached.add(key, ONE_DAY, Integer.valueOf(0));
+		final long failedLogins = memcached.incr(key, 1);
+		final int penalty = getPenalty(failedLogins);
+		if (penalty > 0) {
+			lockAccount(userId, penalty);
+		}
+		return penalty;
+	}
+	
+	private void registerSuccessfulLogin(int userId) {
+		try {
+			memcached.delete(accountCounterKey(userId)).get();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void lockAccount(int userId, int penalty) {
+		memcached.set(accountLockKey(userId), penalty, Integer.valueOf(penalty));
+	}
+
+	private String accountLockKey(int userId) {
+		final StringBuilder builder = new StringBuilder();
+		builder.append("lock-account:");
+		builder.append(userId);
+		return builder.toString();
+	}
+	
+	private boolean isThrottled(int userId) {
+		return memcached.get(accountLockKey(userId)) != null;
 	}
 
 	private ResultSet getResults(Connection connection, AuthHeader header)

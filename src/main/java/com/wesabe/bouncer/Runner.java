@@ -1,5 +1,7 @@
 package com.wesabe.bouncer;
 
+import net.spy.memcached.MemcachedClient;
+
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.client.HttpClient;
@@ -72,7 +74,8 @@ public class Runner {
 				config.getC3P0Properties()
 		);
 		
-		final Authenticator authenticator = new WesabeAuthenticator(dataSource);
+		final MemcachedClient memcached = new MemcachedClient(config.getMemcachedServers());
+		final Authenticator authenticator = new WesabeAuthenticator(dataSource, memcached);
 		
 		context.addFilter(new FilterHolder(
 			new AuthenticationFilter(authenticator, config.getAuthenticationRealm())

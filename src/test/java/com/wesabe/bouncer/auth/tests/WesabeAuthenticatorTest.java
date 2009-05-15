@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 
 import javax.sql.DataSource;
 
+import net.spy.memcached.MemcachedClientIF;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,6 +19,7 @@ import org.mockito.InOrder;
 import org.mortbay.jetty.Request;
 
 import com.wesabe.bouncer.auth.BadCredentialsException;
+import com.wesabe.bouncer.auth.LockedAccountException;
 import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.auth.WesabeCredentials;
 
@@ -29,6 +32,7 @@ public class WesabeAuthenticatorTest {
 		protected ResultSet resultSet;
 		protected WesabeAuthenticator authenticator;
 		protected Request request;
+		protected MemcachedClientIF memcached;
 		
 		public void setup() throws Exception {
 			this.resultSet = mock(ResultSet.class);
@@ -44,7 +48,9 @@ public class WesabeAuthenticatorTest {
 			
 			this.request = mock(Request.class);
 			
-			this.authenticator = new WesabeAuthenticator(dataSource);
+			this.memcached = mock(MemcachedClientIF.class);
+			
+			this.authenticator = new WesabeAuthenticator(dataSource, memcached);
 		}
 	}
 	
@@ -200,7 +206,7 @@ public class WesabeAuthenticatorTest {
 		}
 	}
 	
-	public static class Authenticating_A_Request_With_A_Bad_Password extends Context {
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_No_Failed_Logins extends Context {
 		@Override
 		@Before
 		public void setup() throws Exception {
@@ -212,6 +218,7 @@ public class WesabeAuthenticatorTest {
 			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
 			when(resultSet.getInt("id")).thenReturn(200);
 			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(1L);
 		};
 		
 		@Test
@@ -222,6 +229,341 @@ public class WesabeAuthenticatorTest {
 			} catch (BadCredentialsException e) {
 				assertTrue(true);
 			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (BadCredentialsException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_One_Failed_Login extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(2L);
+		};
+		
+		@Test
+		public void itThrowsABadCredentialsException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (BadCredentialsException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_Two_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(3L);
+		};
+		
+		@Test
+		public void itThrowsABadCredentialsException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a BadCredentialsException but didn't");
+			} catch (BadCredentialsException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (BadCredentialsException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_Three_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(4L);
+		};
+		
+		@Test
+		public void itThrowsALockedAccountException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a LockedAccountException but didn't");
+			} catch (LockedAccountException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+		
+		@Test
+		public void itLocksTheAccountFor15s() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			verify(memcached).set("lock-account:200", 15, Integer.valueOf(15));
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_Four_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(5L);
+		};
+		
+		@Test
+		public void itThrowsALockedAccountException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a LockedAccountException but didn't");
+			} catch (LockedAccountException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+		
+		@Test
+		public void itLocksTheAccountFor30s() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			verify(memcached).set("lock-account:200", 30, Integer.valueOf(30));
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_Eight_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(9L);
+		};
+		
+		@Test
+		public void itThrowsALockedAccountException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a LockedAccountException but didn't");
+			} catch (LockedAccountException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+		
+		@Test
+		public void itLocksTheAccountFor480s() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			verify(memcached).set("lock-account:200", 480, Integer.valueOf(480));
+		}
+	}
+	
+	public static class Authenticating_A_Request_With_A_Bad_Password_And_100_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(101L);
+		};
+		
+		@Test
+		public void itThrowsALockedAccountException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a LockedAccountException but didn't");
+			} catch (LockedAccountException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+		
+		@Test
+		public void itLocksTheAccountFor900s() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			verify(memcached).set("lock-account:200", 900, Integer.valueOf(900));
+		}
+	}
+	
+	public static class Authenticating_A_Request_For_A_Locked_Account_With_Four_Failed_Logins extends Context {
+		@Override
+		@Before
+		public void setup() throws Exception {
+			super.setup();
+			
+			when(request.getHeader("Authorization")).thenReturn("Basic ZGluZ286bWF0aA==");
+			
+			when(resultSet.first()).thenReturn(true);
+			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
+			when(resultSet.getInt("id")).thenReturn(200);
+			when(resultSet.getString("password_hash")).thenReturn("DEADBEEF");
+			when(memcached.incr("failed-logins:200", 1)).thenReturn(5L);
+			when(memcached.get("lock-account:200")).thenReturn(Integer.valueOf(15));
+		};
+		
+		@Test
+		public void itThrowsALockedAccountException() throws Exception {
+			try {
+				authenticator.authenticate(request);
+				fail("should have thrown a LockedAccountException but didn't");
+			} catch (LockedAccountException e) {
+				assertTrue(true);
+			}
+		}
+		
+		@Test
+		public void itIncrementsTheFailedLoginCounterInMemcached() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			InOrder inOrder = inOrder(memcached);
+			inOrder.verify(memcached).add("failed-logins:200", 60 * 60 * 24, Integer.valueOf(0));
+			inOrder.verify(memcached).incr("failed-logins:200", 1);
+			
+		}
+		
+		@Test
+		public void itLocksTheAccountFor30s() throws Exception {
+			try {
+				authenticator.authenticate(request);
+			} catch (LockedAccountException e) {
+			}
+			
+			verify(memcached).set("lock-account:200", 30, Integer.valueOf(30));
 		}
 	}
 	
@@ -251,6 +593,13 @@ public class WesabeAuthenticatorTest {
 			
 			assertEquals(200, creds.getUserId());
 			assertEquals("33aef8191baba4c7b836fa3f79a11a9c50a90b73e7bf381d5487aab3946b39ed", creds.getAccountKey());
+		}
+		
+		@Test
+		public void itRemovesTheFailedLoginCounterFromMemcached() throws Exception {
+			authenticator.authenticate(request);
+			
+			verify(memcached).delete("failed-logins:200");
 		}
 	}
 }
