@@ -18,9 +18,6 @@ TODO
 ----
   
   * audit logging, with detail/log split
-  * status line validation
-  * request line validation
-  * URI validation (no non-printables, enforce punycode)
   * charset normalization
   * move authentication out to something like Grendel
   * accept OAuth credentials
@@ -30,7 +27,7 @@ TODO
     [Jackson](http://jackson.codehaus.org/)?)
   * validate content-length, etc.
   * ingress/egress filtering with customizable responses
-  * client-timeout tarpit for total losers (maybe using  [Grizzly](https://grizzly.dev.java.net/nonav/apidocs/com/sun/grizzly/tcp/http11/GrizzlyResponse.html#suspend()), but we'd have to see how it behaves.
+  * client-timeout tarpit for total losers, but we'd have to see how it behaves
   * IP filtering
   * URI/method blocking
   * on-the-wire entity rewriting (e.g., *** for password)
