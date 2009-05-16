@@ -91,6 +91,13 @@
 			<version>2.3.2-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
+	<developers>
+		<developer>
+			<id>codahale</id>
+			<name>Coda Hale</name>
+			<email>coda@wesabe.com</email>
+		</developer>
+	</developers>
 	<build>
 		<plugins>
 			<plugin>
