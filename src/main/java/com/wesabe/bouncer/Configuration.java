@@ -11,6 +11,12 @@ import java.util.Map.Entry;
 
 import net.spy.memcached.AddrUtil;
 
+/**
+ * A Bouncer configuration file. See the README for a discussion of the
+ * configuration file format.
+ * 
+ * @author coda
+ */
 public class Configuration {
 	private static final String C3P0_KEY_PREFIX = "c3p0.";
 	private static final String HTTP_COMPRESSION_MINIMUM_SIZE_KEY = "bouncer.http.compression.minimum-size";
