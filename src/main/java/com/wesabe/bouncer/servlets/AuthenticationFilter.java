@@ -18,8 +18,19 @@ import org.mortbay.jetty.Request;
 import com.wesabe.bouncer.auth.Authenticator;
 import com.wesabe.bouncer.auth.BadCredentialsException;
 import com.wesabe.bouncer.auth.LockedAccountException;
+import com.wesabe.bouncer.auth.WesabeCredentials;
 import com.wesabe.servlet.SafeRequest;
 
+/**
+ * A servlet {@link Filter} which parses Basic Auth {@code Authorization}
+ * headers and authenticates them via an {@link Authenticator}. If the request
+ * is authenticated, a {@link WesabeCredentials} instance is attached as the
+ * request's principal. Otherwise, a {@code 401 Unauthorized} response is
+ * sent with a Basic Auth challenge.
+ * 
+ * @author coda
+ *
+ */
 public class AuthenticationFilter implements Filter {
 	private final Authenticator authenticator;
 	private final String challenge;

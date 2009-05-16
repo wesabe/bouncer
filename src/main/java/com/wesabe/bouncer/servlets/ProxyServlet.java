@@ -12,6 +12,12 @@ import org.mortbay.jetty.client.HttpClient;
 import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;
 
+/**
+ * A servlet which proxies requests to a backend via an {@link HttpClient}.
+ * 
+ * @author coda
+ *
+ */
 public class ProxyServlet extends HttpServlet {
 	private static final long serialVersionUID = -3276400775243866667L;
 	private final HttpClient httpClient;

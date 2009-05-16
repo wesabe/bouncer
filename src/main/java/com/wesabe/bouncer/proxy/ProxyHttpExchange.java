@@ -17,6 +17,13 @@ import org.mortbay.jetty.client.HttpExchange;
 
 import com.wesabe.servlet.normalizers.util.CaseInsensitiveSet;
 
+/**
+ * An {@link HttpExchange} which is used to proxy an {@link HttpServletRequest}
+ * to a remote server, then back to an {@link HttpServletResponse}.
+ * 
+ * @author coda
+ *
+ */
 public class ProxyHttpExchange extends HttpExchange {
 	private static final Logger LOGGER = Logger.getLogger(ProxyHttpExchange.class.getCanonicalName());
 	

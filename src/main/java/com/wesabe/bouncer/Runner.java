@@ -27,6 +27,11 @@ import com.wesabe.servlet.errors.DebugErrorReporter;
 import com.wesabe.servlet.errors.ErrorReporter;
 import com.wesabe.servlet.errors.SendmailErrorReporter;
 
+/**
+ * The main entry point for Bouncer.
+ * 
+ * @author coda
+ */
 public class Runner {
 	public static void main(String[] args) throws Exception {
 		checkArguments(args);

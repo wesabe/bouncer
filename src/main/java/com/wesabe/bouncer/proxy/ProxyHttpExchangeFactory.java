@@ -5,6 +5,12 @@ import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * A factory class which makes {@link ProxyHttpExchange} instances.
+ * 
+ * @author coda
+ *
+ */
 public class ProxyHttpExchangeFactory {
 	private final URI backendUri;
 	
