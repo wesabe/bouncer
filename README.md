@@ -62,6 +62,9 @@ The config file should look like this:
 TODO
 ----
   
+  * update to Jetty 7 when it comes out
+  * clean up the authentication code
+  * add integration test (how to set up DB/memcache?)
   * audit logging, with detail/log split
   * charset normalization
   * move authentication out to something like Grendel
