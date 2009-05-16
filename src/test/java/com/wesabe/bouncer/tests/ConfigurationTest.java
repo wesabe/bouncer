@@ -33,18 +33,8 @@ public class ConfigurationTest {
 		}
 		
 		@Test
-		public void itHasAServerName() throws Exception {
-			assertEquals("Wesabe", configuration.getServerName());
-		}
-		
-		@Test
 		public void itHasAnAuthenticationRealm() throws Exception {
 			assertEquals("Wesabe API", configuration.getAuthenticationRealm());
-		}
-		
-		@Test
-		public void itHasAnAuthenticationErrorMessage() throws Exception {
-			assertEquals("Authentication is required.", configuration.getAuthenticationErrorMessage());
 		}
 		
 		@Test

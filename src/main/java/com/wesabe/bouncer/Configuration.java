@@ -27,9 +27,7 @@ public class Configuration {
 	private static final String JDBC_URI_KEY = "bouncer.jdbc.uri";
 	private static final String JDBC_DRIVER_KEY = "bouncer.jdbc.driver";
 	private static final String MEMCACHED_SERVERS_KEY = "bouncer.memcached.servers";
-	private static final String AUTHENTICATION_ERROR_MESSAGE_KEY = "bouncer.auth.error-message";
 	private static final String AUTHENTICATION_REALM_KEY = "bouncer.auth.realm";
-	private static final String SERVER_NAME_KEY = "bouncer.server-name";
 	private static final String BACKEND_URI_KEY = "bouncer.backend.uri";
 	private static final String DEBUG_KEY = "bouncer.debug-errors";
 	
@@ -50,16 +48,8 @@ public class Configuration {
 		return new URI(properties.getProperty(BACKEND_URI_KEY));
 	}
 
-	public String getServerName() {
-		return properties.getProperty(SERVER_NAME_KEY);
-	}
-
 	public String getAuthenticationRealm() {
 		return properties.getProperty(AUTHENTICATION_REALM_KEY);
-	}
-
-	public String getAuthenticationErrorMessage() {
-		return properties.getProperty(AUTHENTICATION_ERROR_MESSAGE_KEY);
 	}
 
 	public String getJdbcDriver() {
@@ -91,7 +81,7 @@ public class Configuration {
 	}
 	
 	public List<InetSocketAddress> getMemcachedServers() {
-		return AddrUtil.getAddresses(properties.getProperty(MEMCACHED_SERVERS_KEY));
+		return AddrUtil.getAddresses(properties.getProperty(MEMCACHED_SERVERS_KEY).replace(',', ' '));
 	}
 
 	public Properties getC3P0Properties() {
