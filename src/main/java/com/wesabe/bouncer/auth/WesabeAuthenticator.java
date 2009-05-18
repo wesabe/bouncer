@@ -1,7 +1,5 @@
 package com.wesabe.bouncer.auth;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +11,6 @@ import javax.sql.DataSource;
 import net.spy.memcached.MemcachedClientIF;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.mortbay.jetty.Request;
 
 /**
@@ -76,10 +73,10 @@ public class WesabeAuthenticator implements Authenticator {
 		") AS t " +
 		"ORDER BY last_web_login DESC " +
 		"LIMIT 1";
-	private static final String HASH_ALGORITHM = "SHA-256";
 	private static final int ONE_DAY = 60 * 60 * 24;
 	private final DataSource dataSource;
 	private final MemcachedClientIF memcached;
+	private final PasswordHasher hasher = new PasswordHasher();
 	
 	public WesabeAuthenticator(DataSource dataSource, MemcachedClientIF memcached) {
 		this.dataSource = dataSource;
@@ -97,8 +94,6 @@ public class WesabeAuthenticator implements Authenticator {
 					if (resultSet.first()) {
 						return buildCredentials(header, resultSet);
 					}
-				} catch (NoSuchAlgorithmException e) {
-					throw new RuntimeException(e);
 				} finally {
 					connection.close();
 				}
@@ -112,7 +107,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 
 	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)
-			throws SQLException, NoSuchAlgorithmException, LockedAccountException, BadCredentialsException {
+			throws SQLException, LockedAccountException, BadCredentialsException {
 		final String salt = resultSet.getString(SALT_FIELD);
 		final int userId = resultSet.getInt(USER_ID_FIELD);
 		final String username = resultSet.getString(USERNAME_FIELD);
@@ -123,16 +118,11 @@ public class WesabeAuthenticator implements Authenticator {
 			throw new LockedAccountException(penalty);
 		}
 		
-		final String candidatePasswordHash = concatenateAndHash(salt, header.getPassword());
-		
-		if (candidatePasswordHash.equals(passwordHash)) {
+		if (passwordHash.equals(hasher.getPasswordHash(header.getPassword(), salt))) {
 			registerSuccessfulLogin(userId);
 			return new WesabeCredentials(
 					userId,
-					concatenateAndHash(
-							concatenateAndHash(username, header.getPassword()),
-							header.getPassword()
-					)
+					hasher.getAccountKey(username, header.getPassword())
 			);
 		}
 		
@@ -202,16 +192,5 @@ public class WesabeAuthenticator implements Authenticator {
 
 		ResultSet resultSet = statement.executeQuery();
 		return resultSet;
-	}
-
-	private String concatenateAndHash(String a, String b)
-			throws NoSuchAlgorithmException {
-		MessageDigest sha512 = MessageDigest.getInstance(HASH_ALGORITHM);
-		
-		StringBuilder builder = new StringBuilder();
-		builder.append(a);
-		builder.append(b);
-		
-		return new String(Hex.encodeHex(sha512.digest(builder.toString().getBytes())));
 	}
 }
