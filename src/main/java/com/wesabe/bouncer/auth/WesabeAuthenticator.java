@@ -61,16 +61,15 @@ public class WesabeAuthenticator implements Authenticator {
 	private static final String USERNAME_FIELD = "username";
 	private static final String SALT_FIELD = "salt";
 	private static final String PASSWORD_HASH_FIELD = "password_hash";
-	// FIXME coda@wesabe.com -- May 18, 2009: document magic numbers 0 and 6
 	private static final String USER_SELECT_SQL =
 		"SELECT * FROM (" +
 				"SELECT id, username, salt, password_hash, last_web_login " +
 				"FROM users " +
-				"WHERE (username = ?) AND status IN (0, 6) " +
+				"WHERE (username = ?) AND status IN (0, 6) " + // 0 is ACTIVE, 6 is PENDING
 			"UNION " +
 				"SELECT id, username, salt, password_hash, last_web_login " +
 				"FROM users " +
-				"WHERE (email = ?) AND status IN (0, 6)" +
+				"WHERE (email = ?) AND status IN (0, 6)" + // 0 is ACTIVE, 6 is PENDING
 		") AS t " +
 		"ORDER BY last_web_login DESC " +
 		"LIMIT 1";
