@@ -7,7 +7,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<description>An authenticating reverse proxy with firm ideas about whether or not you're on the list.</description>
 	<properties>
-		<jetty-version>6.1.17</jetty-version>
+		<jetty-version>6.1.18</jetty-version>
 	</properties>
 	<repositories>
 		<repository>
