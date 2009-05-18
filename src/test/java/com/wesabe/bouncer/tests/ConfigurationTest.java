@@ -96,5 +96,20 @@ public class ConfigurationTest {
 		public void itIsDebug() throws Exception {
 			assertThat(configuration.isDebug(), is(true));
 		}
+		
+		@Test
+		public void itHasAClientThreadPoolSize() throws Exception {
+			assertThat(configuration.getHttpClientThreadPoolSize(), is(40));
+		}
+		
+		@Test
+		public void itHasAClientMaxConnectionsLimit() throws Exception {
+			assertThat(configuration.getHttpClientMaxConnections(), is(1000));
+		}
+		
+		@Test
+		public void itHasAGracefulShutdownPeriod() throws Exception {
+			assertThat(configuration.getHttpGracefulShutdownPeriod(), is(5000));
+		}
 	}
 }

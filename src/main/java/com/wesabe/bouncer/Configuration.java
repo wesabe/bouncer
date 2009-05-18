@@ -30,6 +30,9 @@ public class Configuration {
 	private static final String AUTHENTICATION_REALM_KEY = "bouncer.auth.realm";
 	private static final String BACKEND_URI_KEY = "bouncer.backend.uri";
 	private static final String DEBUG_KEY = "bouncer.debug-errors";
+	private static final String HTTP_CLIENT_THREAD_POOL_SIZE_KEY = "bouncer.http.client.threads";
+	private static final String HTTP_CLIENT_MAX_CONNECTIONS_KEY = "bouncer.http.client.max-connections";
+	private static final String HTTP_GRACEFUL_SHUTDOWN_KEY = "bouncer.http.graceful-wait";
 	
 	private final Properties properties;
 	
@@ -101,5 +104,17 @@ public class Configuration {
 	
 	public boolean isDebug() {
 		return Boolean.valueOf(properties.getProperty(DEBUG_KEY));
+	}
+
+	public int getHttpClientThreadPoolSize() {
+		return Integer.valueOf(properties.getProperty(HTTP_CLIENT_THREAD_POOL_SIZE_KEY));
+	}
+
+	public int getHttpClientMaxConnections() {
+		return Integer.valueOf(properties.getProperty(HTTP_CLIENT_MAX_CONNECTIONS_KEY));
+	}
+
+	public int getHttpGracefulShutdownPeriod() {
+		return Integer.valueOf(properties.getProperty(HTTP_GRACEFUL_SHUTDOWN_KEY));
 	}
 }

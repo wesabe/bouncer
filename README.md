@@ -53,6 +53,16 @@ The config file should look like this:
     # The minimum response entity size to compress, in bytes.
     bouncer.http.compression.minimum-size=100
     
+    # The number of seconds to wait for existing connections to finish after the
+    # listening HTTP port is closed.
+    bouncer.http.graceful-wait=5000
+    
+    # The number of threads available to the proxying HTTP client.
+    bouncer.http.client.threads=40
+    
+    # The maximum number of connections per backend.
+    bouncer.http.client.max-connections=1000
+    
     # A comma-separated list of memcache servers, with ports.
     bouncer.memcached.servers=memcache1:11211,memcache2:11212
 

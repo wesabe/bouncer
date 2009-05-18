@@ -38,8 +38,8 @@ public class Runner {
 		checkArguments(args);
 		
 		final Configuration config = new Configuration(args[0]);
-		final Server server = setupServer(Integer.valueOf(args[1]));
-		final Context context = setupContext(server, config);
+		final Server server = setupServer(config, Integer.valueOf(args[1]));
+		final Context context = setupContext(config, server);
 		setupAuthentication(config, context);
 		setupProxy(config, context);
 		
@@ -50,9 +50,8 @@ public class Runner {
 	private static void setupProxy(Configuration config, Context context)
 			throws Exception {
 		final HttpClient client = new HttpClient();
-		// FIXME coda@wesabe.com -- May 18, 2009: move these to the config file
-		client.setThreadPool(new QueuedThreadPool(20));
-		client.setMaxConnectionsPerAddress(1000);
+		client.setThreadPool(new QueuedThreadPool(config.getHttpClientThreadPoolSize()));
+		client.setMaxConnectionsPerAddress(config.getHttpClientMaxConnections());
 		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
 		final ServletHolder proxyHolder = new ServletHolder(new ProxyServlet(client, factory));
 		context.addServlet(proxyHolder, "/*");
@@ -77,7 +76,7 @@ public class Runner {
 		), "/*", 0);
 	}
 
-	private static Context setupContext(Server server, Configuration config) throws Exception {
+	private static Context setupContext(Configuration config, Server server) throws Exception {
 		final Context context = new Context(server, "/");
 		context.addFilter(SafeFilter.class, "/*", Handler.DEFAULT);
 		
@@ -103,13 +102,12 @@ public class Runner {
 		return context;
 	}
 
-	private static Server setupServer(int port) {
+	private static Server setupServer(Configuration config, int port) {
 		final Server server = new Server();
 		final Connector connector = new SelectChannelConnector();
 		connector.setPort(port);
 		server.addConnector(connector);
-		// FIXME coda@wesabe.com -- May 18, 2009: move this to the config file
-		server.setGracefulShutdown(5000);
+		server.setGracefulShutdown(config.getHttpGracefulShutdownPeriod());
 		server.setSendServerVersion(false);
 		server.setStopAtShutdown(true);
 		return server;
