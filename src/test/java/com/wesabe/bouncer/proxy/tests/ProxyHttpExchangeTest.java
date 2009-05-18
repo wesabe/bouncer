@@ -80,8 +80,8 @@ public class ProxyHttpExchangeTest {
 		}
 		
 		@Test
-		public void itHasABackendUri() throws Exception {
-			assertThat(exchange().getBackendUri(), is(backend));
+		public void itHasABackendUriWithNoPath() throws Exception {
+			assertThat(exchange().getBackendUri(), is(URI.create("http://example.com:8081")));
 		}
 		
 		@Test

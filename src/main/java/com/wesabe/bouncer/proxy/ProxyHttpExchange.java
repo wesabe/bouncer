@@ -121,20 +121,25 @@ public class ProxyHttpExchange extends HttpExchange {
 		"Server"
 	);
 	
-	private final URI backendUri;
+	private final String backendUri;
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
 	private volatile boolean canceled = false;
 	
 	public ProxyHttpExchange(URI backend, HttpServletRequest request, HttpServletResponse response) {
-		this.backendUri = backend;
+		final String uri = backend.toASCIIString();
+		if (uri.endsWith("/")) {
+			this.backendUri = uri.substring(0, uri.length() - 1);
+		} else {
+			this.backendUri = uri;
+		}
 		this.request = request;
 		this.response = response;
 		buildFromRequest(request);
 	}
 	
 	public URI getBackendUri() {
-		return backendUri;
+		return URI.create(backendUri);
 	}
 	
 	public HttpServletRequest getRequest() {
@@ -176,13 +181,13 @@ public class ProxyHttpExchange extends HttpExchange {
 	}
 
 	private String buildProxyUrl(HttpServletRequest request) {
-		final StringBuilder urlBuilder = new StringBuilder();
+		final StringBuilder urlBuilder = new StringBuilder(backendUri);
 		urlBuilder.append(request.getRequestURI());
 		final String queryString = request.getQueryString();
 		if (queryString != null) {
 			urlBuilder.append('?').append(queryString);
 		}
-		return backendUri.resolve(urlBuilder.toString()).toASCIIString();
+		return urlBuilder.toString();
 	}
 	
 	@Override
