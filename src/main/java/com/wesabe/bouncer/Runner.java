@@ -5,6 +5,7 @@ import javax.sql.DataSource;
 import net.spy.memcached.MemcachedClient;
 
 import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.client.HttpClient;
 import org.mortbay.jetty.nio.SelectChannelConnector;
@@ -78,8 +79,7 @@ public class Runner {
 
 	private static Context setupContext(Server server, Configuration config) throws Exception {
 		final Context context = new Context(server, "/");
-		// FIXME coda@wesabe.com -- May 18, 2009: document what zero means here
-		context.addFilter(SafeFilter.class, "/*", 0);
+		context.addFilter(SafeFilter.class, "/*", Handler.DEFAULT);
 		
 		final ErrorReporter reporter;
 		if (config.isDebug()) {
@@ -89,13 +89,13 @@ public class Runner {
 		}
 		
 		final FilterHolder errorHolder = new FilterHolder(new ErrorReporterFilter(reporter, "Wesabe engineers have been alerted to this error. If you have further questions, please contact <support@wesabe.com>."));
-		context.addFilter(errorHolder, "/*", 0);
+		context.addFilter(errorHolder, "/*", Handler.DEFAULT);
 		
 		if (config.isHttpCompressionEnabled()) {
 			final FilterHolder gzipHolder = new FilterHolder(GzipFilter.class);
 			gzipHolder.setInitParameter("minGzipSize", config.getHttpCompressionMinimumSize().toString());
 			gzipHolder.setInitParameter("mimeTypes", config.getHttpCompressableMimeTypes());
-			context.addFilter(gzipHolder, "/*", 0);
+			context.addFilter(gzipHolder, "/*", Handler.DEFAULT);
 		}
 		
 		context.setErrorHandler(new QuietErrorHandler());
