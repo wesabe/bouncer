@@ -49,6 +49,7 @@ public class Runner {
 	private static void setupProxy(Configuration config, Context context)
 			throws Exception {
 		final HttpClient client = new HttpClient();
+		// FIXME coda@wesabe.com -- May 18, 2009: move these to the config file
 		client.setThreadPool(new QueuedThreadPool(20));
 		client.setMaxConnectionsPerAddress(1000);
 		final ProxyHttpExchangeFactory factory = new ProxyHttpExchangeFactory(config.getBackendUri());
@@ -77,6 +78,7 @@ public class Runner {
 
 	private static Context setupContext(Server server, Configuration config) throws Exception {
 		final Context context = new Context(server, "/");
+		// FIXME coda@wesabe.com -- May 18, 2009: document what zero means here
 		context.addFilter(SafeFilter.class, "/*", 0);
 		
 		final ErrorReporter reporter;
@@ -106,6 +108,7 @@ public class Runner {
 		final Connector connector = new SelectChannelConnector();
 		connector.setPort(port);
 		server.addConnector(connector);
+		// FIXME coda@wesabe.com -- May 18, 2009: move this to the config file
 		server.setGracefulShutdown(5000);
 		server.setSendServerVersion(false);
 		server.setStopAtShutdown(true);

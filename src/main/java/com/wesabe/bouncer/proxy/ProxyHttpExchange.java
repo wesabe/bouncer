@@ -127,6 +127,7 @@ public class ProxyHttpExchange extends HttpExchange {
 	private volatile boolean canceled = false;
 	
 	public ProxyHttpExchange(URI backend, HttpServletRequest request, HttpServletResponse response) {
+		// FIXME coda@wesabe.com -- May 18, 2009: move this to the factory
 		final String uri = backend.toASCIIString();
 		if (uri.endsWith("/")) {
 			this.backendUri = uri.substring(0, uri.length() - 1);

@@ -61,6 +61,7 @@ public class WesabeAuthenticator implements Authenticator {
 	private static final String USERNAME_FIELD = "username";
 	private static final String SALT_FIELD = "salt";
 	private static final String PASSWORD_HASH_FIELD = "password_hash";
+	// FIXME coda@wesabe.com -- May 18, 2009: document magic numbers 0 and 6
 	private static final String USER_SELECT_SQL =
 		"SELECT * FROM (" +
 				"SELECT id, username, salt, password_hash, last_web_login " +
@@ -170,6 +171,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 
 	private void lockAccount(int userId, int penalty) {
+		// FIXME coda@wesabe.com -- May 18, 2009: log this
 		memcached.set(accountLockKey(userId), penalty, Integer.valueOf(penalty));
 	}
 
