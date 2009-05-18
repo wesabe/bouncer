@@ -12,14 +12,19 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 public class ProxyHttpExchangeFactory {
-	private final URI backendUri;
+	private final String backendUri;
 	
 	public ProxyHttpExchangeFactory(URI backendUri) {
-		this.backendUri = backendUri;
+		final String uri = backendUri.toASCIIString();
+		if (uri.endsWith("/")) {
+			this.backendUri = uri.substring(0, uri.length() - 1);
+		} else {
+			this.backendUri = uri;
+		}
 	}
 	
 	public URI getBackendUri() {
-		return backendUri;
+		return URI.create(backendUri);
 	}
 	
 	public ProxyHttpExchange build(HttpServletRequest request, HttpServletResponse response) {

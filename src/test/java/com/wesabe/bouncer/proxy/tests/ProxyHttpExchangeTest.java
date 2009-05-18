@@ -6,7 +6,6 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
@@ -36,7 +35,7 @@ import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 @RunWith(Enclosed.class)
 public class ProxyHttpExchangeTest {
 	public static class Proxying_A_Request {
-		private URI backend;
+		private String backend;
 		private HttpServletRequest request;
 		private HttpServletResponse response;
 		private ServletInputStream inputStream;
@@ -53,7 +52,7 @@ public class ProxyHttpExchangeTest {
 		public void setup() throws Exception {
 			this.principal = new WesabeCredentials(300, "WOOHOO");
 			
-			this.backend = URI.create("http://example.com:8081/");
+			this.backend = "http://example.com:8081";
 			
 			this.inputStream = mock(ServletInputStream.class);
 			
@@ -77,11 +76,6 @@ public class ProxyHttpExchangeTest {
 		
 		private ProxyHttpExchange exchange() {
 			return new ProxyHttpExchange(backend, request, response);
-		}
-		
-		@Test
-		public void itHasABackendUriWithNoPath() throws Exception {
-			assertThat(exchange().getBackendUri(), is(URI.create("http://example.com:8081")));
 		}
 		
 		@Test
@@ -186,7 +180,7 @@ public class ProxyHttpExchangeTest {
 	}
 	
 	public static class Proxying_A_Response {
-		private URI backend;
+		private String backend;
 		private HttpServletRequest request;
 		private HttpServletResponse response;
 		private ServletOutputStream outputStream;
@@ -197,7 +191,7 @@ public class ProxyHttpExchangeTest {
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
 			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
 			
-			this.backend = URI.create("http://example.com:8081/");
+			this.backend = "http://example.com:8081/";
 			this.request = mock(HttpServletRequest.class);
 			when(request.getProtocol()).thenReturn("HTTP/1.0");
 			when(request.getMethod()).thenReturn("POST");
@@ -298,7 +292,7 @@ public class ProxyHttpExchangeTest {
 	}
 	
 	public static class Proxying_A_500_Internal_Server_Error {
-		private URI backend;
+		private String backend;
 		private HttpServletRequest request;
 		private HttpServletResponse response;
 		private ServletOutputStream outputStream;
@@ -309,7 +303,7 @@ public class ProxyHttpExchangeTest {
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
 			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
 			
-			this.backend = URI.create("http://example.com:8081/");
+			this.backend = "http://example.com:8081/";
 			this.request = mock(HttpServletRequest.class);
 			when(request.getProtocol()).thenReturn("HTTP/1.0");
 			when(request.getMethod()).thenReturn("POST");
