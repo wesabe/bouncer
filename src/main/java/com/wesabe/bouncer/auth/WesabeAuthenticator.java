@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -56,6 +57,7 @@ public class WesabeAuthenticator implements Authenticator {
 		}
 	}
 	
+	private static final Logger LOGGER = Logger.getLogger(WesabeAuthenticator.class.getCanonicalName());
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String USER_ID_FIELD = "id";
 	private static final String USERNAME_FIELD = "username";
@@ -170,7 +172,7 @@ public class WesabeAuthenticator implements Authenticator {
 	}
 
 	private void lockAccount(int userId, int penalty) {
-		// FIXME coda@wesabe.com -- May 18, 2009: log this
+		LOGGER.info("Locking user " + userId + " for " + penalty + " seconds");
 		memcached.set(accountLockKey(userId), penalty, Integer.valueOf(penalty));
 	}
 

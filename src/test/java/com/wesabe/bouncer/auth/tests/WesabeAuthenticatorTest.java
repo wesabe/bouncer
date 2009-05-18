@@ -6,6 +6,8 @@ import static org.mockito.Mockito.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -51,6 +53,8 @@ public class WesabeAuthenticatorTest {
 			this.memcached = mock(MemcachedClientIF.class);
 			
 			this.authenticator = new WesabeAuthenticator(dataSource, memcached);
+			
+			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
 		}
 	}
 	
