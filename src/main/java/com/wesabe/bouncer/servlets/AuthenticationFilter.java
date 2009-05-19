@@ -51,6 +51,12 @@ public class AuthenticationFilter implements Filter {
 			throws IOException, ServletException {
 		final SafeRequest safeRequest = (SafeRequest) req;
 		final Request request = (Request) safeRequest.getRequest();
+		
+		if (request.getRequestURI().equals("/health/")) {
+			chain.doFilter(request, resp);
+			return;
+		}
+		
 		final HttpServletResponse response = (HttpServletResponse) resp;
 		final Principal principal;
 		try {

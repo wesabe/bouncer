@@ -38,6 +38,7 @@ public class AuthenticationFilterTest {
 			this.filter = new AuthenticationFilter(authenticator, "Test API");
 			
 			this.request = mock(Request.class);
+			when(request.getRequestURI()).thenReturn("/woo");
 			this.response = mock(Response.class);
 			this.chain = mock(FilterChain.class);
 			this.principal = mock(Principal.class);
@@ -69,6 +70,7 @@ public class AuthenticationFilterTest {
 			this.authenticator = mock(Authenticator.class);
 			this.filter = new AuthenticationFilter(authenticator, "Test API");
 			this.request = mock(Request.class);
+			when(request.getRequestURI()).thenReturn("/woo");
 			this.response = mock(HttpServletResponse.class);
 			this.chain = mock(FilterChain.class);
 		}
@@ -101,6 +103,7 @@ public class AuthenticationFilterTest {
 			this.authenticator = mock(Authenticator.class);
 			this.filter = new AuthenticationFilter(authenticator, "Test API");
 			this.request = mock(Request.class);
+			when(request.getRequestURI()).thenReturn("/woo");
 			this.response = mock(HttpServletResponse.class);
 			this.chain = mock(FilterChain.class);
 			
@@ -118,6 +121,35 @@ public class AuthenticationFilterTest {
 			inOrder.verify(authenticator).authenticate(request);
 			inOrder.verify(response).setIntHeader("Retry-After", 200);
 			inOrder.verify(response).sendError(503);
+		}
+	}
+	
+	public static class Filtering_A_Request_For_A_Health_Check {
+		private Request request;
+		private HttpServletResponse response;
+		private FilterChain chain;
+		private Authenticator authenticator;
+		private AuthenticationFilter filter;
+
+		@Before
+		public void setup() throws Exception {
+			this.authenticator = mock(Authenticator.class);
+			this.filter = new AuthenticationFilter(authenticator, "Test API");
+			this.request = mock(Request.class);
+			when(request.getRequestURI()).thenReturn("/health/");
+			this.response = mock(HttpServletResponse.class);
+			this.chain = mock(FilterChain.class);
+		}
+		
+		@Test
+		public void itPassesTheRequestOnWithoutAuthorization() throws Exception {
+			final SafeRequest safeRequest = new SafeRequest(request);
+			filter.doFilter(safeRequest, response, chain);
+			
+			verify(authenticator, never()).authenticate(request);
+			verify(request, never()).setUserPrincipal(any(Principal.class));
+			verify(request, never()).setAuthType(anyString());
+			verify(chain).doFilter(request, response);
 		}
 	}
 	
