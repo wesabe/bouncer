@@ -62,7 +62,7 @@ task :jar do
   require "time"
   head = `git log -n1 --pretty="format:%H"`
   @version = "#{Time.now.utc.strftime("%Y%m%d%H%M%S")}-#{head[0..7]}"
-  mvn_or_die("maven.test.skip=true", "clean", "assembly:assembly")
+  mvn_or_die("-Dmaven.test.skip=true", "clean", "assembly:assembly")
   generated_jar_file = Dir["target/*-with-dependencies.jar"].first
   @jar_file = "target/" + File.basename(generated_jar_file).gsub(/[\d]+.[\d]+(-SNAPSHOT)?-jar-with-dependencies/, @version)
   mv(generated_jar_file, @jar_file)
