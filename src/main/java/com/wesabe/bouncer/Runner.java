@@ -21,6 +21,7 @@ import com.wesabe.bouncer.auth.WesabeAuthenticator;
 import com.wesabe.bouncer.jetty.QuietErrorHandler;
 import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;
 import com.wesabe.bouncer.servlets.AuthenticationFilter;
+import com.wesabe.bouncer.servlets.HealthServlet;
 import com.wesabe.bouncer.servlets.ProxyServlet;
 import com.wesabe.servlet.ErrorReporterFilter;
 import com.wesabe.servlet.SafeFilter;
@@ -40,11 +41,31 @@ public class Runner {
 		final Configuration config = new Configuration(args[0]);
 		final Server server = setupServer(config, Integer.valueOf(args[1]));
 		final Context context = setupContext(config, server);
-		setupAuthentication(config, context);
+		
+		final DataSource dataSource = DataSources.pooledDataSource(
+				DataSources.unpooledDataSource(
+						config.getJdbcUri().toASCIIString(),
+						config.getJdbcUsername(),
+						config.getJdbcPassword()
+				),
+				config.getC3P0Properties()
+		);
+		
+		final MemcachedClient memcached = new MemcachedClient(config.getMemcachedServers());
+		setupAuthentication(config, context, dataSource, memcached);
+		setupHealth(context, dataSource, memcached);
 		setupProxy(config, context);
 		
 		server.start();
 		server.join();
+	}
+
+	private static void setupHealth(Context context, DataSource dataSource,
+			MemcachedClient memcached) {
+		context.addServlet(
+			new ServletHolder(new HealthServlet(dataSource, memcached)),
+			"/health/"
+		);
 	}
 
 	private static void setupProxy(Configuration config, Context context)
@@ -57,18 +78,8 @@ public class Runner {
 		context.addServlet(proxyHolder, "/*");
 	}
 
-	private static void setupAuthentication(Configuration config, Context context)
+	private static void setupAuthentication(Configuration config, Context context, DataSource dataSource, MemcachedClient memcached)
 			throws Exception {
-		final DataSource dataSource = DataSources.pooledDataSource(
-				DataSources.unpooledDataSource(
-						config.getJdbcUri().toASCIIString(),
-						config.getJdbcUsername(),
-						config.getJdbcPassword()
-				),
-				config.getC3P0Properties()
-		);
-		
-		final MemcachedClient memcached = new MemcachedClient(config.getMemcachedServers());
 		final Authenticator authenticator = new WesabeAuthenticator(dataSource, memcached);
 		
 		context.addFilter(new FilterHolder(
