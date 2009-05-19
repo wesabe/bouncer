@@ -81,6 +81,8 @@ public class QuietErrorHandler extends ErrorHandler {
 			return "The requested resource could not be found on this server.";
 		case SC_NOT_IMPLEMENTED:
 			return "The server does not support the action requested.";
+		case SC_OK:
+			return "";
 		case SC_PRECONDITION_FAILED:
 			return "The precondition on the request for the resource failed " +
 					"positive evaluation.";

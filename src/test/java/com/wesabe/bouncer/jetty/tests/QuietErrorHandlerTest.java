@@ -41,6 +41,13 @@ public class QuietErrorHandlerTest {
 		}
 		
 		@Test
+		public void itHandles200s() throws Exception {
+			when(response.getStatus()).thenReturn(SC_OK);
+			
+			assertHandles("\n");
+		}
+		
+		@Test
 		public void itHandles400s() throws Exception {
 			when(response.getStatus()).thenReturn(SC_BAD_REQUEST);
 			
