@@ -101,6 +101,9 @@ public class HealthServletTest {
 			inOrder.verify(query).executeQuery();
 			inOrder.verify(results).first();
 			inOrder.verify(results).getInt(1);
+			inOrder.verify(results).close();
+			inOrder.verify(query).close();
+			inOrder.verify(connection).close();
 		}
 	}
 	

@@ -40,7 +40,7 @@ public class HealthServlet extends HttpServlet {
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	
 	private boolean memcacheWorks() {
 		return !memcached.getStats().isEmpty();
 	}
@@ -50,8 +50,16 @@ public class HealthServlet extends HttpServlet {
 			final Connection connection = dataSource.getConnection();
 			try {
 				final PreparedStatement statement = connection.prepareStatement("SELECT 1");
-				final ResultSet results = statement.executeQuery();
-				return results.first() && (results.getInt(1) == 1);
+				try {
+					final ResultSet results = statement.executeQuery();
+					try {
+						return results.first() && (results.getInt(1) == 1);
+					} finally {
+						results.close();
+					}
+				} finally {
+					statement.close();
+				}
 			} finally {
 				connection.close();
 			}
