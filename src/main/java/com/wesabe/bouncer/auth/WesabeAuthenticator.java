@@ -57,12 +57,24 @@ public class WesabeAuthenticator implements Authenticator {
 		}
 	}
 	
+	private static class UserRecord {
+		private static final String USER_ID_FIELD = "id";
+		private static final String USERNAME_FIELD = "username";
+		private static final String SALT_FIELD = "salt";
+		private static final String PASSWORD_HASH_FIELD = "password_hash";
+		private final int userId;
+		private final String username, salt, passwordHash;
+		
+		public UserRecord(ResultSet resultSet) throws SQLException {
+			this.salt = resultSet.getString(SALT_FIELD);
+			this.userId = resultSet.getInt(USER_ID_FIELD);
+			this.username = resultSet.getString(USERNAME_FIELD);
+			this.passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
+		}
+	}
+	
 	private static final Logger LOGGER = Logger.getLogger(WesabeAuthenticator.class.getCanonicalName());
 	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String USER_ID_FIELD = "id";
-	private static final String USERNAME_FIELD = "username";
-	private static final String SALT_FIELD = "salt";
-	private static final String PASSWORD_HASH_FIELD = "password_hash";
 	private static final String USER_SELECT_SQL =
 		"SELECT * FROM (" +
 				"SELECT id, username, salt, password_hash, last_web_login " +
@@ -92,9 +104,9 @@ public class WesabeAuthenticator implements Authenticator {
 			try {
 				final Connection connection = dataSource.getConnection();
 				try {
-					final ResultSet resultSet = getResults(connection, header);
-					if (resultSet.first()) {
-						return buildCredentials(header, resultSet);
+					final UserRecord user = getUserRecord(connection, header);
+					if (user != null) {
+						return buildCredentials(header, user);
 					}
 				} finally {
 					connection.close();
@@ -108,27 +120,22 @@ public class WesabeAuthenticator implements Authenticator {
 		throw new BadCredentialsException();
 	}
 
-	private Principal buildCredentials(AuthHeader header, ResultSet resultSet)
-			throws SQLException, LockedAccountException, BadCredentialsException {
-		final String salt = resultSet.getString(SALT_FIELD);
-		final int userId = resultSet.getInt(USER_ID_FIELD);
-		final String username = resultSet.getString(USERNAME_FIELD);
-		final String passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
-		
-		if (isThrottled(userId)) {
-			final int penalty = registerFailedLogin(userId);
+	private Principal buildCredentials(AuthHeader header, UserRecord user)
+			throws LockedAccountException, BadCredentialsException {
+		if (isThrottled(user.userId)) {
+			final int penalty = registerFailedLogin(user.userId);
 			throw new LockedAccountException(penalty);
 		}
 		
-		if (passwordHash.equals(hasher.getPasswordHash(header.getPassword(), salt))) {
-			registerSuccessfulLogin(userId);
+		if (user.passwordHash.equals(hasher.getPasswordHash(header.getPassword(), user.salt))) {
+			registerSuccessfulLogin(user.userId);
 			return new WesabeCredentials(
-					userId,
-					hasher.getAccountKey(username, header.getPassword())
+					user.userId,
+					hasher.getAccountKey(user.username, header.getPassword())
 			);
 		}
 		
-		final int penalty = registerFailedLogin(userId);
+		final int penalty = registerFailedLogin(user.userId);
 		if (penalty > 0) {
 			throw new LockedAccountException(penalty);
 		}
@@ -187,13 +194,23 @@ public class WesabeAuthenticator implements Authenticator {
 		return memcached.get(accountLockKey(userId)) != null;
 	}
 
-	private ResultSet getResults(Connection connection, AuthHeader header)
+	private UserRecord getUserRecord(Connection connection, AuthHeader header)
 			throws SQLException {
-		PreparedStatement statement = connection.prepareStatement(USER_SELECT_SQL);
-		statement.setString(1, header.getUsername());
-		statement.setString(2, header.getUsername());
-
-		ResultSet resultSet = statement.executeQuery();
-		return resultSet;
+		final PreparedStatement statement = connection.prepareStatement(USER_SELECT_SQL);
+		try {
+			statement.setString(1, header.getUsername());
+			statement.setString(2, header.getUsername());
+			final ResultSet resultSet = statement.executeQuery();
+			try {
+				if (resultSet.first()) {
+					return new UserRecord(resultSet);
+				}
+			} finally {
+				resultSet.close();
+			}
+			return null;
+		} finally {
+			statement.close();
+		}
 	}
 }

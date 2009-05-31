@@ -206,6 +206,8 @@ public class WesabeAuthenticatorTest {
 			inOrder.verify(statement).setString(2, "dingo");
 			inOrder.verify(statement).executeQuery();
 			inOrder.verify(resultSet).first();
+			inOrder.verify(resultSet).close();
+			inOrder.verify(statement).close();
 			inOrder.verify(connection).close();
 		}
 	}
