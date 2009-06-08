@@ -73,7 +73,7 @@ def deployer
   if ENV["STAGING"] == "1"
     Deploy.send(:hosts, %w{ bouncer1.stage })
   else
-    Deploy.send(:hosts, %w{ bouncer1.prod })
+    Deploy.send(:hosts, %w{ bouncer1.prod bouncer2.prod })
   end
   return Deploy.new
 end
