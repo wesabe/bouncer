@@ -8,23 +8,23 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.HttpGenerator;
-import org.mortbay.jetty.MimeTypes;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Response;
-import org.mortbay.jetty.handler.ErrorHandler;
-import org.mortbay.jetty.servlet.Context;
+import org.eclipse.jetty.http.HttpGenerator;
+import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.handler.ErrorHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 /**
- * An {@link ErrorHandler} for Jetty {@link Context}s which outputs simple
+ * An {@link ErrorHandler} for Jetty {@link ServletContextHandler}s which outputs simple
  * plain-text error messages without Jetty branding or stack traces.
  * 
  * @author coda
  */
 public class QuietErrorHandler extends ErrorHandler {
 	@Override
-	public void handle(String target, HttpServletRequest req, HttpServletResponse resp,
-			int dispatch) throws IOException {
+	public void handle(String target, Request baseRequest,
+			HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		final Request request = (Request) req;
 		final Response response = (Response) resp;
 		response.resetBuffer();
@@ -117,7 +117,7 @@ public class QuietErrorHandler extends ErrorHandler {
 		default:
 			builder = new StringBuilder();
 			builder.append("Your request could not be processed: ");
-			builder.append(HttpGenerator.getReason(status));
+			builder.append(HttpGenerator.getReasonBuffer(status).toString());
 			return builder.toString();
 		}
 	}

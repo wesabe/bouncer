@@ -1,18 +1,27 @@
 package com.wesabe.bouncer.auth;
 
-import java.security.Principal;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 import net.spy.memcached.MemcachedClientIF;
 
 import org.apache.commons.codec.binary.Base64;
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.http.HttpHeaders;
+import org.eclipse.jetty.http.security.Constraint;
+import org.eclipse.jetty.security.ServerAuthException;
+import org.eclipse.jetty.security.UserAuthentication;
+import org.eclipse.jetty.server.Authentication;
+import org.eclipse.jetty.server.Authentication.User;
 
 /**
  * An {@link Authenticator} which, given a {@link DataSource} for the PFC
@@ -22,53 +31,53 @@ import org.mortbay.jetty.Request;
  * @author coda
  *
  */
-public class WesabeAuthenticator implements Authenticator {
-	private static class AuthHeader {
-		private static final String BASIC_AUTHENTICATION_PREFIX = "Basic ";
-		private final String username, password;
-		
-		public static AuthHeader parse(String authHeader) {
-			if ((authHeader != null) && authHeader.startsWith(BASIC_AUTHENTICATION_PREFIX)) {
-				final String encodedCreds = authHeader.substring(BASIC_AUTHENTICATION_PREFIX.length(), authHeader.length());
-				final String creds = new String(Base64.decodeBase64(encodedCreds.getBytes()));
-				int separator = creds.indexOf(':');
-				if (separator > 0) {
-					final String username = creds.substring(0, separator);
-					final String password = creds.substring(separator + 1);
-					
-					return new AuthHeader(username, password);
-				}
-			}
-			
-			return null;
-		}
-		
-		public AuthHeader(String username, String password) {
-			this.username = username;
-			this.password = password;
-		}
-		
-		public String getUsername() {
-			return username;
-		}
-		
-		public String getPassword() {
-			return password;
-		}
-	}
-	
-	private static class UserRecord {
+public class WesabeAuthenticator implements org.eclipse.jetty.security.Authenticator {
+    private static class AuthHeader {
+        private static final String BASIC_AUTHENTICATION_PREFIX = "Basic ";
+        private final String username, password;
+        
+        public static AuthHeader parse(String authHeader) {
+                if ((authHeader != null) && authHeader.startsWith(BASIC_AUTHENTICATION_PREFIX)) {
+                        final String encodedCreds = authHeader.substring(BASIC_AUTHENTICATION_PREFIX.length(), authHeader.length());
+                        final String creds = new String(Base64.decodeBase64(encodedCreds.getBytes()));
+                        int separator = creds.indexOf(':');
+                        if (separator > 0) {
+                                final String username = creds.substring(0, separator);
+                                final String password = creds.substring(separator + 1);
+                                
+                                return new AuthHeader(username, password);
+                        }
+                }
+                
+                return null;
+        }
+        
+        public AuthHeader(String username, String password) {
+                this.username = username;
+                this.password = password;
+        }
+        
+        public String getUsername() {
+                return username;
+        }
+        
+        public String getPassword() {
+                return password;
+        }
+    }
+
+    private static class UserRecord {
 		private static final String USER_ID_FIELD = "id";
-		private static final String USERNAME_FIELD = "username";
+		private static final String UID_FIELD = "uid";
 		private static final String SALT_FIELD = "salt";
 		private static final String PASSWORD_HASH_FIELD = "password_hash";
 		private final int userId;
-		private final String username, salt, passwordHash;
+		private final String uid, salt, passwordHash;
 		
 		public UserRecord(ResultSet resultSet) throws SQLException {
 			this.salt = resultSet.getString(SALT_FIELD);
 			this.userId = resultSet.getInt(USER_ID_FIELD);
-			this.username = resultSet.getString(USERNAME_FIELD);
+			this.uid = resultSet.getString(UID_FIELD);
 			this.passwordHash = resultSet.getString(PASSWORD_HASH_FIELD);
 		}
 	}
@@ -77,11 +86,11 @@ public class WesabeAuthenticator implements Authenticator {
 	private static final String AUTHORIZATION_HEADER = "Authorization";
 	private static final String USER_SELECT_SQL =
 		"SELECT * FROM (" +
-				"SELECT id, username, salt, password_hash, last_web_login " +
+				"SELECT id, uid, salt, password_hash, last_web_login " +
 				"FROM users " +
 				"WHERE (username = ?) AND status IN (0, 6) " + // 0 is ACTIVE, 6 is PENDING
 			"UNION " +
-				"SELECT id, username, salt, password_hash, last_web_login " +
+				"SELECT id, uid, salt, password_hash, last_web_login " +
 				"FROM users " +
 				"WHERE (email = ?) AND status IN (0, 6)" + // 0 is ACTIVE, 6 is PENDING
 		") AS t " +
@@ -91,36 +100,15 @@ public class WesabeAuthenticator implements Authenticator {
 	private final DataSource dataSource;
 	private final MemcachedClientIF memcached;
 	private final PasswordHasher hasher = new PasswordHasher();
+	private final String realm;
 	
-	public WesabeAuthenticator(DataSource dataSource, MemcachedClientIF memcached) {
+	public WesabeAuthenticator(String realm, DataSource dataSource, MemcachedClientIF memcached) {
 		this.dataSource = dataSource;
 		this.memcached = memcached;
+		this.realm = realm;
 	}
 	
-	@Override
-	public Principal authenticate(Request request) throws LockedAccountException, BadCredentialsException {
-		final AuthHeader header = AuthHeader.parse(request.getHeader(AUTHORIZATION_HEADER));
-		if (header != null) {
-			try {
-				final Connection connection = dataSource.getConnection();
-				try {
-					final UserRecord user = getUserRecord(connection, header);
-					if (user != null) {
-						return buildCredentials(header, user);
-					}
-				} finally {
-					connection.close();
-				}
-
-			} catch (SQLException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		
-		throw new BadCredentialsException();
-	}
-
-	private Principal buildCredentials(AuthHeader header, UserRecord user)
+	private WesabeCredentials buildCredentials(AuthHeader header, UserRecord user)
 			throws LockedAccountException, BadCredentialsException {
 		if (isThrottled(user.userId)) {
 			final int penalty = registerFailedLogin(user.userId);
@@ -131,7 +119,7 @@ public class WesabeAuthenticator implements Authenticator {
 			registerSuccessfulLogin(user.userId);
 			return new WesabeCredentials(
 					user.userId,
-					hasher.getAccountKey(user.username, header.getPassword())
+					hasher.getAccountKey(user.uid, header.getPassword())
 			);
 		}
 		
@@ -212,5 +200,70 @@ public class WesabeAuthenticator implements Authenticator {
 		} finally {
 			statement.close();
 		}
+	}
+
+	@Override
+	public String getAuthMethod() {
+		return Constraint.__BASIC_AUTH;
+	}
+
+	@Override
+	public boolean secureResponse(ServletRequest request, ServletResponse response, boolean mandatory, User validatedUser)
+			throws ServerAuthException {
+		return true;
+	}
+
+	@Override
+	public void setConfiguration(Configuration configuration) {
+		// nothing to do
+	}
+
+	@Override
+	public Authentication validateRequest(ServletRequest request, ServletResponse response, boolean mandatory)
+			throws ServerAuthException {
+		final HttpServletResponse httpResponse = (HttpServletResponse) response;
+		
+        try {
+			try {
+				return new UserAuthentication(this, new WesabeUserIdentity( authenticate(request) ));
+			} catch (BadCredentialsException e) {
+		        httpResponse.setHeader(HttpHeaders.WWW_AUTHENTICATE, "basic realm=\"" + getRealm() + '"');
+				httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+				return Authentication.SEND_CONTINUE;
+			} catch (LockedAccountException e) {
+				httpResponse.setIntHeader(HttpHeaders.RETRY_AFTER, e.getPenaltyDuration());
+				httpResponse.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+				return Authentication.SEND_FAILURE;
+			}
+		} catch (IOException e1) {
+			throw new ServerAuthException(e1);
+		}
+	}
+	
+	public WesabeCredentials authenticate(ServletRequest request) throws BadCredentialsException, LockedAccountException {
+		final HttpServletRequest httpRequest = (HttpServletRequest) request;
+		AuthHeader header = AuthHeader.parse(httpRequest.getHeader(AUTHORIZATION_HEADER));
+		
+		if (header != null) {
+			try {
+				final Connection connection = dataSource.getConnection();
+				try {
+					final UserRecord user = getUserRecord(connection, header);
+					if (user != null)
+						return buildCredentials(header, user);
+				} finally {
+					connection.close();
+				}
+
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		throw new BadCredentialsException();
+	}
+	
+	public String getRealm() {
+		return realm;
 	}
 }

@@ -13,12 +13,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpExchange;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.mortbay.jetty.client.HttpClient;
-import org.mortbay.jetty.client.HttpExchange;
 
 import com.google.common.collect.Lists;
 import com.wesabe.bouncer.proxy.ProxyHttpExchange;

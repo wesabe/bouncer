@@ -11,9 +11,9 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.io.Buffer;
-import org.mortbay.jetty.EofException;
-import org.mortbay.jetty.client.HttpExchange;
+import org.eclipse.jetty.io.Buffer;
+import org.eclipse.jetty.io.EofException;
+import org.eclipse.jetty.client.HttpExchange;
 
 import com.wesabe.servlet.normalizers.util.CaseInsensitiveSet;
 

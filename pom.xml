@@ -7,7 +7,7 @@
 	<version>1.0-SNAPSHOT</version>
 	<description>An authenticating reverse proxy with firm ideas about whether or not you're on the list.</description>
 	<properties>
-		<jetty-version>6.1.18</jetty-version>
+		<jetty-version>7.0.0.RC3</jetty-version>
 	</properties>
 	<repositories>
 		<repository>
@@ -29,30 +29,18 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty-servlet-tester</artifactId>
-			<version>${jetty-version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty</artifactId>
-			<version>${jetty-version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.mortbay.jetty</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
+			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-client</artifactId>
+			<version>${jetty-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlet</artifactId>
+			<version>${jetty-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-servlets</artifactId>
 			<version>${jetty-version}</version>
 		</dependency>
 		<dependency>

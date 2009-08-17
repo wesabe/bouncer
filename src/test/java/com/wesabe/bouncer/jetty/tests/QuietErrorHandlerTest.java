@@ -13,10 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Response;
-import org.mortbay.jetty.handler.ErrorHandler;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
+import org.eclipse.jetty.server.handler.ErrorHandler;
 
 import com.wesabe.bouncer.jetty.QuietErrorHandler;
 
@@ -201,15 +200,15 @@ public class QuietErrorHandlerTest {
 		public void itHandlesNonSpecificErrors() throws Exception {
 			when(response.getStatus()).thenReturn(SC_CONTINUE);
 			
-			assertHandles("Your request could not be processed: CONTINUE\n");
+			assertHandles("Your request could not be processed: Continue\n");
 		}
 		
 		protected void handle() throws Exception {
-			handler.handle("/woo", request, response, Handler.ERROR);
+			handler.handle("/woo", request, request, response);
 		}
 		
 		protected void assertHandles(String msg) throws Exception {
-			handler.handle("/woo", request, response, Handler.ERROR);
+			handler.handle("/woo", request, request, response);
 			
 			verify(response).resetBuffer();
 			

@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.mortbay.jetty.client.HttpClient;
+import org.eclipse.jetty.client.HttpClient;
 
 import com.wesabe.bouncer.proxy.ProxyHttpExchange;
 import com.wesabe.bouncer.proxy.ProxyHttpExchangeFactory;

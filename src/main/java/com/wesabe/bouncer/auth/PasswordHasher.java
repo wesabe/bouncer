@@ -33,9 +33,9 @@ public class PasswordHasher {
 		return newHash;
 	}
 	
-	public String getAccountKey(String username, String password) {
+	public String getAccountKey(String uid, String password) {
 		StringBuilder builder = new StringBuilder();
-		builder.append(username);
+		builder.append(uid);
 		builder.append(password);
 		final String s = builder.toString();
 		

@@ -2,7 +2,7 @@ package com.wesabe.bouncer.auth;
 
 import java.security.Principal;
 
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.server.Request;
 
 /**
  * An authenticator of incoming requests.

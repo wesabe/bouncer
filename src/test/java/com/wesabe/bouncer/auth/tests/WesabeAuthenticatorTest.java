@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
-import org.mortbay.jetty.Request;
+import org.eclipse.jetty.server.Request;
 
 import com.wesabe.bouncer.auth.BadCredentialsException;
 import com.wesabe.bouncer.auth.LockedAccountException;
@@ -52,7 +52,7 @@ public class WesabeAuthenticatorTest {
 			
 			this.memcached = mock(MemcachedClientIF.class);
 			
-			this.authenticator = new WesabeAuthenticator(dataSource, memcached);
+			this.authenticator = new WesabeAuthenticator("wesabe", dataSource, memcached);
 			
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
 		}
@@ -191,11 +191,11 @@ public class WesabeAuthenticatorTest {
 			inOrder.verify(dataSource).getConnection();
 			inOrder.verify(connection).prepareStatement(
 				"SELECT * FROM (" +
-						"SELECT id, username, salt, password_hash, last_web_login " +
+						"SELECT id, uid, salt, password_hash, last_web_login " +
 						"FROM users " +
 						"WHERE (username = ?) AND status IN (0, 6) " +
 					"UNION " +
-						"SELECT id, username, salt, password_hash, last_web_login " +
+						"SELECT id, uid, salt, password_hash, last_web_login " +
 						"FROM users " +
 						"WHERE (email = ?) AND status IN (0, 6)" +
 				") AS t " +
@@ -584,7 +584,7 @@ public class WesabeAuthenticatorTest {
 			when(resultSet.first()).thenReturn(true);
 			when(resultSet.getString("salt")).thenReturn("cVApCcmpECrgRwCo");
 			when(resultSet.getInt("id")).thenReturn(200);
-			when(resultSet.getString("username")).thenReturn("FrankyDoo!");
+			when(resultSet.getString("uid")).thenReturn("FrankyDoo!");
 			when(resultSet.getString("password_hash")).thenReturn("6b56e2021b411940d70b0208693e51bab97cf93c03dc92d7a810f21e1b6faf7f");
 		};
 		
@@ -595,7 +595,7 @@ public class WesabeAuthenticatorTest {
 		
 		@Test
 		public void itReturnsASetOfCredentials() throws Exception {
-			WesabeCredentials creds = (WesabeCredentials) authenticator.authenticate(request);
+			WesabeCredentials creds = authenticator.authenticate(request);
 			
 			assertEquals(200, creds.getUserId());
 			assertEquals("33aef8191baba4c7b836fa3f79a11a9c50a90b73e7bf381d5487aab3946b39ed", creds.getAccountKey());

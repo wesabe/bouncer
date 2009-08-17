@@ -17,15 +17,15 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.io.Buffer;
+import org.eclipse.jetty.io.ByteArrayBuffer;
+import org.eclipse.jetty.io.EofException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.mortbay.io.Buffer;
-import org.mortbay.io.ByteArrayBuffer;
-import org.mortbay.jetty.EofException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -189,7 +189,7 @@ public class ProxyHttpExchangeTest {
 		@Before
 		public void setup() throws Exception {
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
-			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
+			Logger.getLogger("org.eclipse.jetty").setLevel(Level.OFF);
 			
 			this.backend = "http://example.com:8081/";
 			this.request = mock(HttpServletRequest.class);
@@ -301,7 +301,7 @@ public class ProxyHttpExchangeTest {
 		@Before
 		public void setup() throws Exception {
 			Logger.getLogger("com.wesabe").setLevel(Level.OFF);
-			Logger.getLogger("org.mortbay").setLevel(Level.OFF);
+			Logger.getLogger("org.eclipse.jetty").setLevel(Level.OFF);
 			
 			this.backend = "http://example.com:8081/";
 			this.request = mock(HttpServletRequest.class);
